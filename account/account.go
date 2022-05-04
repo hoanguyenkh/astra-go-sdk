@@ -1,8 +1,12 @@
 package account
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 	"github.com/pkg/errors"
@@ -27,6 +31,7 @@ func (a *Account) CreateAccount() (*PrivateKeySerialized, error) {
 		return nil, errors.Wrap(err, "NewEntropy")
 	}
 
+	//bip39 mnemonic
 	mnemonic, err := bip39.NewMnemonic(entropySeed)
 	if err != nil {
 		return nil, errors.Wrap(err, "NewMnemonic")
@@ -38,6 +43,31 @@ func (a *Account) CreateAccount() (*PrivateKeySerialized, error) {
 	}
 
 	return privKey, nil
+}
+
+func (a *Account) CreateMulSignAccount(totalSign, multisigThreshold int) ([]*PrivateKeySerialized, string, string, error) {
+	var listPrivate []*PrivateKeySerialized
+	pks := make([]cryptoTypes.PubKey, totalSign)
+	for i := 0; i < totalSign; i++ {
+		k, err := a.CreateAccount()
+		if err != nil {
+			continue
+		}
+
+		listPrivate = append(listPrivate, k)
+		pks[i] = k.PublicKey()
+	}
+
+	pk := multisig.NewLegacyAminoPubKey(multisigThreshold, pks)
+
+	addr := types.AccAddress(pk.Address())
+	apk, err := codecTypes.NewAnyWithValue(pk)
+	if err != nil {
+		return nil, "", "", errors.Wrap(err, "NewKeyOutput")
+	}
+	bz, err := codec.ProtoMarshalJSON(apk, nil)
+
+	return listPrivate, addr.String(), string(bz), nil
 }
 
 //Import an Account
@@ -54,7 +84,7 @@ func (a *Account) ImportAccount(mnemonic string) (*PrivateKeySerialized, error) 
 		}
 
 		privateKey := ethermintHd.EthSecp256k1.Generate()(derivedPriv)
-		return NewPrivateKeySerialized(privateKey), nil
+		return NewPrivateKeySerialized(mnemonic, privateKey), nil
 
 	}
 
@@ -70,5 +100,5 @@ func (a *Account) ImportAccount(mnemonic string) (*PrivateKeySerialized, error) 
 	}
 
 	privateKey := hd.Secp256k1.Generate()(derivedPriv)
-	return NewPrivateKeySerialized(privateKey), nil
+	return NewPrivateKeySerialized(mnemonic, privateKey), nil
 }

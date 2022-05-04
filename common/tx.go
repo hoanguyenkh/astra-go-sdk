@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	keyMultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
@@ -21,29 +22,31 @@ import (
 type Tx struct {
 	txf        tx.Factory
 	privateKey *account.PrivateKeySerialized
+	rpcClient  client.Context
 }
 
-func NewTx(config client.TxConfig, privateKey *account.PrivateKeySerialized, gasLimit uint64, gasPrice string) *Tx {
+func NewTx(rpcClient client.Context, privateKey *account.PrivateKeySerialized, gasLimit uint64, gasPrice string) *Tx {
 	txf := tx.Factory{}.
-		WithTxConfig(config).
+		WithChainID(rpcClient.ChainID).
+		WithTxConfig(rpcClient.TxConfig).
 		WithGasPrices(gasPrice).
 		WithGas(gasLimit)
 	//.SetTimeoutHeight(txf.TimeoutHeight())
 
-	return &Tx{txf: txf, privateKey: privateKey}
+	return &Tx{txf: txf, privateKey: privateKey, rpcClient: rpcClient}
 }
 
 func (t *Tx) BuildUnsignedTx(msgs types.Msg) (client.TxBuilder, error) {
 	return t.txf.BuildUnsignedTx(msgs)
 }
 
-func (t *Tx) PrintUnsignedTx(rpcClient client.Context, msgs types.Msg) (string, error) {
+func (t *Tx) PrintUnsignedTx(msgs types.Msg) (string, error) {
 	unsignedTx, err := t.BuildUnsignedTx(msgs)
 	if err != nil {
 		return "", errors.Wrap(err, "BuildUnsignedTx")
 	}
 
-	json, err := rpcClient.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
+	json, err := t.rpcClient.TxConfig.TxJSONEncoder()(unsignedTx.GetTx())
 	if err != nil {
 		return "", errors.Wrap(err, "TxJSONEncoder")
 	}
@@ -51,9 +54,11 @@ func (t *Tx) PrintUnsignedTx(rpcClient client.Context, msgs types.Msg) (string, 
 	return string(json), nil
 }
 
-func (t *Tx) prepareSignTx(rpcClient client.Context, coinType uint32, from types.AccAddress) error {
+func (t *Tx) prepareSignTx() error {
+	coinType := t.privateKey.CoinType()
+	from := t.privateKey.AccAddress()
 
-	if err := rpcClient.AccountRetriever.EnsureExists(rpcClient, from); err != nil {
+	if err := t.rpcClient.AccountRetriever.EnsureExists(t.rpcClient, from); err != nil {
 		return errors.Wrap(err, "EnsureExists")
 	}
 
@@ -63,8 +68,10 @@ func (t *Tx) prepareSignTx(rpcClient client.Context, coinType uint32, from types
 		var err error
 
 		if coinType == 60 {
-			queryClient := emvTypes.NewQueryClient(rpcClient)
-			cosmosAccount, err := queryClient.CosmosAccount(context.Background(), &emvTypes.QueryCosmosAccountRequest{Address: from.String()})
+			hexAddress := common.BytesToAddress(t.privateKey.PublicKey().Address().Bytes())
+
+			queryClient := emvTypes.NewQueryClient(t.rpcClient)
+			cosmosAccount, err := queryClient.CosmosAccount(context.Background(), &emvTypes.QueryCosmosAccountRequest{Address: hexAddress.String()})
 			if err != nil {
 				return errors.Wrap(err, "CosmosAccount")
 			}
@@ -73,28 +80,66 @@ func (t *Tx) prepareSignTx(rpcClient client.Context, coinType uint32, from types
 			accSeq = cosmosAccount.Sequence
 
 		} else {
-			accNum, accSeq, err = rpcClient.AccountRetriever.GetAccountNumberSequence(rpcClient, from)
+			accNum, accSeq, err = t.rpcClient.AccountRetriever.GetAccountNumberSequence(t.rpcClient, from)
 			if err != nil {
 				return errors.Wrap(err, "GetAccountNumberSequence")
 			}
 		}
 
-		t.txf.WithAccountNumber(accNum)
-		t.txf.WithSequence(accSeq)
+		t.txf = t.txf.WithAccountNumber(accNum)
+		t.txf = t.txf.WithSequence(accSeq)
 	}
 
 	return nil
 }
 
-func (t *Tx) SignTx(rpcClient client.Context, txBuilder client.TxBuilder, pubKey cryptoTypes.PubKey) error {
-	from := t.privateKey.Address()
+func (t *Tx) prepareMultiSignTx(coinType uint32, pubKey cryptoTypes.PubKey) error {
+	from := types.AccAddress(pubKey.Address())
 
-	err := t.prepareSignTx(rpcClient, t.privateKey.CoinType(), from)
+	if err := t.rpcClient.AccountRetriever.EnsureExists(t.rpcClient, from); err != nil {
+		return errors.Wrap(err, "EnsureExists")
+	}
+
+	initNum, initSeq := t.txf.AccountNumber(), t.txf.Sequence()
+	if initNum == 0 || initSeq == 0 {
+		var accNum, accSeq uint64
+		var err error
+
+		if coinType == 60 {
+			hexAddress := common.BytesToAddress(pubKey.Address().Bytes())
+
+			queryClient := emvTypes.NewQueryClient(t.rpcClient)
+			cosmosAccount, err := queryClient.CosmosAccount(context.Background(), &emvTypes.QueryCosmosAccountRequest{Address: hexAddress.String()})
+			if err != nil {
+				return errors.Wrap(err, "CosmosAccount")
+			}
+
+			accNum = cosmosAccount.AccountNumber
+			accSeq = cosmosAccount.Sequence
+
+		} else {
+			accNum, accSeq, err = t.rpcClient.AccountRetriever.GetAccountNumberSequence(t.rpcClient, from)
+			if err != nil {
+				return errors.Wrap(err, "GetAccountNumberSequence")
+			}
+		}
+
+		t.txf = t.txf.WithAccountNumber(accNum)
+		t.txf = t.txf.WithSequence(accSeq)
+	}
+
+	return nil
+}
+
+func (t *Tx) SignTx(txBuilder client.TxBuilder) error {
+	pubKey := t.privateKey.PublicKey()
+
+	err := t.prepareSignTx()
 	if err != nil {
 		return errors.Wrap(err, "prepareSignTx")
 	}
 
-	signMode := rpcClient.TxConfig.SignModeHandler().DefaultMode()
+	signMode := t.rpcClient.TxConfig.SignModeHandler().DefaultMode()
 
 	isMulSign, err := IsMulSign(pubKey)
 	if isMulSign {
@@ -118,7 +163,7 @@ func (t *Tx) SignTx(rpcClient client.Context, txBuilder client.TxBuilder, pubKey
 
 	// Construct the SignatureV2 struct
 	signerData := authSigning.SignerData{
-		ChainID:       rpcClient.ChainID,
+		ChainID:       t.rpcClient.ChainID,
 		AccountNumber: t.txf.AccountNumber(),
 		Sequence:      t.txf.Sequence(),
 	}
@@ -128,7 +173,7 @@ func (t *Tx) SignTx(rpcClient client.Context, txBuilder client.TxBuilder, pubKey
 		signerData,
 		txBuilder,
 		t.privateKey.PrivateKey(),
-		rpcClient.TxConfig,
+		t.rpcClient.TxConfig,
 		t.txf.Sequence())
 
 	if err != nil {
@@ -143,9 +188,8 @@ func (t *Tx) SignTx(rpcClient client.Context, txBuilder client.TxBuilder, pubKey
 	return nil
 }
 
-func (t *Tx) MulSignTx(rpcClient client.Context, txBuilder client.TxBuilder, pubKey cryptoTypes.PubKey, coinType uint32, sigs []signing.SignatureV2) error {
-	from := types.AccAddress(pubKey.Address())
-	err := t.prepareSignTx(rpcClient, coinType, from)
+func (t *Tx) MulSignTx(txBuilder client.TxBuilder, pubKey cryptoTypes.PubKey, coinType uint32, sigs []signing.SignatureV2) error {
+	err := t.prepareMultiSignTx(coinType, pubKey)
 	if err != nil {
 		return errors.Wrap(err, "prepareSignTx")
 	}
@@ -165,7 +209,7 @@ func (t *Tx) MulSignTx(rpcClient client.Context, txBuilder client.TxBuilder, pub
 		}
 
 		for _, sig := range sigs {
-			err = authSigning.VerifySignature(sig.PubKey, signingData, sig.Data, rpcClient.TxConfig.SignModeHandler(), txBuilder.GetTx())
+			err = authSigning.VerifySignature(sig.PubKey, signingData, sig.Data, t.rpcClient.TxConfig.SignModeHandler(), txBuilder.GetTx())
 			if err != nil {
 				addr, _ := types.AccAddressFromHex(sig.PubKey.Address().String())
 				return fmt.Errorf("couldn't verify signature for address %s", addr)

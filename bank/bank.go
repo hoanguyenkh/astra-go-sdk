@@ -69,49 +69,50 @@ func (b *Bank) AccountRetriever(addr string) (uint64, uint64, error) {
 	return accNum, accSeq, nil
 }
 
-func (b *Bank) TransferRawData(param TransferRequest) (client.TxBuilder, error) {
+func (b *Bank) TransferRawData(param *TransferRequest) (client.TxBuilder, error) {
 	auth := account.NewAccount(b.coinType)
 	acc, err := auth.ImportAccount(param.PrivateKey)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "ImportAccount")
 	}
 
 	receiver, err := types.AccAddressFromBech32(param.Receiver)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "AccAddressFromBech32")
 	}
 
+	coin := types.NewCoin(b.tokenSymbol, types.NewIntFromBigInt(param.Amount))
 	msg := bankTypes.NewMsgSend(
-		acc.Address(),
+		acc.AccAddress(),
 		receiver,
-		types.NewCoins(types.NewInt64Coin(b.tokenSymbol, param.Amount.Int64())),
+		types.NewCoins(coin),
 	)
 
-	tx := common.NewTx(b.rpcClient.TxConfig, acc, param.GasLimit, param.GasPrice)
+	tx := common.NewTx(b.rpcClient, acc, param.GasLimit, param.GasPrice)
 
 	txBuilder, err := tx.BuildUnsignedTx(msg)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "BuildUnsignedTx")
 	}
 
-	err = tx.SignTx(b.rpcClient, txBuilder, acc.PublicKey())
+	err = tx.SignTx(txBuilder)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "SignTx")
 	}
 
 	return txBuilder, nil
 }
 
-func (b *Bank) TransferMulSignRawData(param TransferRequest) (client.TxBuilder, error) {
+func (b *Bank) TransferMulSignRawData(param *TransferMultiSignRequest) (client.TxBuilder, error) {
 	pk, err := common.DecodePublicKey(param.FromPublicKey)
 	from, err := types.AccAddressFromBech32(param.From)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "AccAddressFromBech32")
 	}
 
 	receiver, err := types.AccAddressFromBech32(param.Receiver)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "AccAddressFromBech32")
 	}
 
 	msg := bankTypes.NewMsgSend(
@@ -120,16 +121,16 @@ func (b *Bank) TransferMulSignRawData(param TransferRequest) (client.TxBuilder, 
 		types.NewCoins(types.NewInt64Coin(b.tokenSymbol, param.Amount.Int64())),
 	)
 
-	tx := common.NewTx(b.rpcClient.TxConfig, nil, param.GasLimit, param.GasPrice)
+	tx := common.NewTx(b.rpcClient, nil, param.GasLimit, param.GasPrice)
 
 	txBuilder, err := tx.BuildUnsignedTx(msg)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "BuildUnsignedTx")
 	}
 
-	err = tx.MulSignTx(b.rpcClient, txBuilder, pk, b.coinType, nil)
+	err = tx.MulSignTx(txBuilder, pk, b.coinType, nil)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "MulSignTx")
 	}
 
 	return txBuilder, nil

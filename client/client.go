@@ -6,7 +6,6 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/tharsis/ethermint/app"
@@ -15,30 +14,22 @@ import (
 )
 
 type Client struct {
-	endpoint       string
-	chainId        string
-	coinType       uint32
-	prefixAddress  string
-	tokenSymbol    string
-	encodingConfig params.EncodingConfig
-	sdkConfig      *types.Config
-	rpcClient      client.Context
+	coinType      uint32
+	prefixAddress string
+	tokenSymbol   string
+	rpcClient     client.Context
 }
 
-func NewClient(cfg *config.Config) (*Client, error) {
+func NewClient(cfg *config.Config) *Client {
 	cli := new(Client)
-	err := cli.Init(cfg)
-	return cli, err
+	cli.Init(cfg)
+	return cli
 }
 
-func (c *Client) Init(cfg *config.Config) (err error) {
-	c.chainId = cfg.ChainId
-	c.endpoint = cfg.Endpoint
+func (c *Client) Init(cfg *config.Config) {
 	c.coinType = cfg.CoinType
 	c.prefixAddress = cfg.PrefixAddress
 	c.tokenSymbol = cfg.TokenSymbol
-
-	c.encodingConfig = encoding.MakeConfig(app.ModuleBasics)
 
 	sdkConfig := types.GetConfig()
 	sdkConfig.SetPurpose(44)
@@ -63,27 +54,24 @@ func (c *Client) Init(cfg *config.Config) (err error) {
 	sdkConfig.SetBech32PrefixForValidator(bech32PrefixValAddr, bech32PrefixValPub)
 	sdkConfig.SetBech32PrefixForConsensusNode(bech32PrefixConsAddr, bech32PrefixConsPub)
 
-	c.sdkConfig = sdkConfig
-
-	rpcHttp, err := client.NewClientFromNode(c.endpoint)
+	rpcHttp, err := client.NewClientFromNode(cfg.Endpoint)
 	if err != nil {
 		panic(err)
 	}
 
 	ar := authTypes.AccountRetriever{}
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	rpcClient := client.Context{}
 	rpcClient = rpcClient.
-		//WithNodeURI(c.endpoint).
-		WithTxConfig(c.encodingConfig.TxConfig).
-		WithAccountRetriever(ar).
-		WithChainID(c.chainId).
 		WithClient(rpcHttp).
-		WithInterfaceRegistry(c.encodingConfig.InterfaceRegistry) //codec.NewProtoCodec
+		//WithNodeURI(c.endpoint).
+		WithTxConfig(encodingConfig.TxConfig).
+		WithAccountRetriever(ar).
+		WithChainID(cfg.ChainId).
+		WithInterfaceRegistry(encodingConfig.InterfaceRegistry) //codec.NewProtoCodec
 
 	c.rpcClient = rpcClient
-
-	return nil
 }
 
 func (c *Client) NewAccountClient() *account.Account {

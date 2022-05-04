@@ -2,6 +2,7 @@ package account
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -12,14 +13,15 @@ import (
 )
 
 type PrivateKeySerialized struct {
+	mnemonic   string
 	privateKey cryptoTypes.PrivKey
 }
 
-func NewPrivateKeySerialized(privateKey cryptoTypes.PrivKey) *PrivateKeySerialized {
-	return &PrivateKeySerialized{privateKey: privateKey}
+func NewPrivateKeySerialized(mnemonic string, privateKey cryptoTypes.PrivKey) *PrivateKeySerialized {
+	return &PrivateKeySerialized{mnemonic: mnemonic, privateKey: privateKey}
 }
 
-func (p *PrivateKeySerialized) String() (map[string]string, error) {
+func (p *PrivateKeySerialized) String() (string, error) {
 	pub := p.privateKey.PubKey()
 
 	addr := types.AccAddress(pub.Address())
@@ -28,12 +30,13 @@ func (p *PrivateKeySerialized) String() (map[string]string, error) {
 
 	apk, err := codecTypes.NewAnyWithValue(pub)
 	if err != nil {
-		return nil, errors.Wrap(err, "NewKeyOutput")
+		return "", errors.Wrap(err, "NewKeyOutput")
 	}
 	bz, err := codec.ProtoMarshalJSON(apk, nil)
 
 	rs := map[string]string{
 		"privateKey":   hex.EncodeToString(p.privateKey.Bytes()),
+		"mnemonic":     p.mnemonic,
 		"publicKey":    string(bz),
 		"validatorKey": validatorAddr.String(),
 		"address":      addr.String(),
@@ -41,7 +44,9 @@ func (p *PrivateKeySerialized) String() (map[string]string, error) {
 		"type":         p.privateKey.Type(),
 	}
 
-	return rs, nil
+	b, _ := json.MarshalIndent(rs, "", " ")
+
+	return string(b), nil
 }
 
 func (p *PrivateKeySerialized) PrivateKey() cryptoTypes.PrivKey {
@@ -67,7 +72,7 @@ func (p *PrivateKeySerialized) PublicKeyJson() (string, error) {
 	return string(bz), nil
 }
 
-func (p *PrivateKeySerialized) Address() types.AccAddress {
+func (p *PrivateKeySerialized) AccAddress() types.AccAddress {
 	pub := p.privateKey.PubKey()
 	addr := types.AccAddress(pub.Address())
 
