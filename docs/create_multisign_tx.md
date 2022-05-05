@@ -1,25 +1,34 @@
 ### Transfer Token With MultiSign Account
 
+#### Signer Account
 ```
-    pk, err := common.DecodePublicKey(suite.Client.rpcClient, "{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":2,\"public_keys\":[{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}]}"
-    
-    if err != nil {
-        panic(err)
-    }
-	
-    from := types.AccAddress(pk.Address())
-    
-    bankClient := client.NewBankClient()
-    
-    amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
-    fmt.Println("amount", amount.String())
-    
-    listPrivate := []string{
+listPrivate := []string{
         "project fat comfort regular strong dream crack palace boost act reform minor rack where vicious photo cat pass bounce dune fuel movie tennis sausage",
         "embody thrive world there siren afraid sport utility dove rural few guess grid own strategy orbit vacuum soft gold muffin wrestle shoulder detect record",
         "property cactus cannon talent priority silk ice nurse such arctic dove wonder blue stumble chalk engine start know unable tool arctic tone sugar grass",
     }
+```
+
+#### MultiSign Account
+
+```
+  pk, err := common.DecodePublicKey(suite.Client.rpcClient, "{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":2,\"public_keys\":[{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}]}"
     
+    if err != nil {
+        panic(err)
+    }
+```
+
+#### Create tx
+``` 
+    bankClient := client.NewBankClient()
+    from := types.AccAddress(pk.Address())
+        
+    //amount
+    amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
+    fmt.Println("amount", amount.String())
+    
+    //sign tx via singer
     signList := make([][]signingTypes.SignatureV2, 0)
     for i, s := range listPrivate {
         fmt.Println("index", i)
@@ -52,7 +61,8 @@
         signList = append(signList, signByte)
     }
     
-    fmt.Println("start transfer")
+    
+    //send token
     
     request := &bank.TransferMultiSignRequest{
         MulSignAccPublicKey: pk,
