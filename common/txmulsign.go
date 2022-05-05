@@ -93,13 +93,13 @@ func (t *TxMulSign) prepareSignTx(coinType uint32, pubKey cryptoTypes.PubKey) er
 	return nil
 }
 
-func (t *TxMulSign) SignTxWithSignerAddress(txBuilder client.TxBuilder, accMultiSignPubKey cryptoTypes.PubKey) error {
-	accMultiSignAddr := types.AccAddress(accMultiSignPubKey.Address())
+func (t *TxMulSign) SignTxWithSignerAddress(txBuilder client.TxBuilder, multiSignAccPubKey cryptoTypes.PubKey) error {
+	accMultiSignAddr := types.AccAddress(multiSignAccPubKey.Address())
 	if !IsTxSigner(accMultiSignAddr, txBuilder.GetTx().GetSigners()) {
 		return fmt.Errorf("address signer %s invalid", accMultiSignAddr.String())
 	}
 
-	err := t.prepareSignTx(t.signerPrivateKey.CoinType(), accMultiSignPubKey)
+	err := t.prepareSignTx(t.signerPrivateKey.CoinType(), multiSignAccPubKey)
 	if err != nil {
 		return errors.Wrap(err, "prepareSignTx")
 	}
