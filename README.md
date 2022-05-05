@@ -1,4 +1,4 @@
-# Astra Chain SDK for Go
+# Astra Chain SDK
 
 ## Requirements
 - It's necessary for you to make sure your system have installed Go environment which version greater than 1.18.0.
