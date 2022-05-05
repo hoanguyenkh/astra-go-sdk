@@ -36,7 +36,7 @@ func main() {
 ### Create MultiSign Account
 
 ```
-    accClient := suite.Client.NewAccountClient()
+    accClient := client.NewAccountClient()
     acc, addr, pubKey, err := accClient.CreateMulSignAccount(3, 2)
     if err != nil {
         panic(err)

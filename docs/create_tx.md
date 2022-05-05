@@ -1,7 +1,7 @@
 ### Transfer Token
 
 ```
-    bankClient := suite.Client.NewBankClient()
+    bankClient := client.NewBankClient()
     
     amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
      
@@ -33,7 +33,7 @@
     txHash := common.TxHash(txByte)
     fmt.Println("txHash", txHash)
     
-    res, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
+    res, err := client.rpcClient.BroadcastTxCommit(txByte)
     if err != nil {
         panic(err)
     }
