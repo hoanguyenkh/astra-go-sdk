@@ -10,14 +10,11 @@ If you use `go mod` to manage your dependence, you can use the following command
 $ go get github.com/AstraProtocol/astra-go-sdk
 ```
 
-## Documentation
-[Docs](https://github.com/AstraProtocol/astra-go-sdk/tree/master/docs)
-
 ## Issues
 [Opening an Issue](https://github.com/AstraProtocol/astra-go-sdk/issues/new), Issues not conforming to the guidelines may be closed immediately.
 
 ## Usage
-[Usage Document](https://github.com/AstraProtocol/astra-go-sdk/docs)
+[Usage Document](https://github.com/AstraProtocol/astra-go-sdk/tree/master/docs)
 
 ## Changelog
 Detailed changes for each release are documented in the [release notes](./ChangeLog.txt).
