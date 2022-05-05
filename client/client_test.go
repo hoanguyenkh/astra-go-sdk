@@ -46,8 +46,8 @@ func (suite *AstraSdkTestSuite) TestInitBank() {
 }
 
 func (suite *AstraSdkTestSuite) TestGenAccount() {
-	client := suite.Client.NewAccountClient()
-	acc, err := client.CreateAccount()
+	accClient := suite.Client.NewAccountClient()
+	acc, err := accClient.CreateAccount()
 	if err != nil {
 		panic(err)
 	}
@@ -58,8 +58,8 @@ func (suite *AstraSdkTestSuite) TestGenAccount() {
 }
 
 func (suite *AstraSdkTestSuite) TestGenMulSignAccount() {
-	client := suite.Client.NewAccountClient()
-	acc, addr, pubKey, err := client.CreateMulSignAccount(3, 2)
+	accClient := suite.Client.NewAccountClient()
+	acc, addr, pubKey, err := accClient.CreateMulSignAccount(3, 2)
 	if err != nil {
 		panic(err)
 	}
@@ -67,9 +67,9 @@ func (suite *AstraSdkTestSuite) TestGenMulSignAccount() {
 	fmt.Println("addr", addr)
 	fmt.Println("pucKey", pubKey)
 	fmt.Println("list key")
-	for i, serialized := range acc {
+	for i, item := range acc {
 		fmt.Println("index", i)
-		fmt.Println(serialized.String())
+		fmt.Println(item.String())
 	}
 }
 
