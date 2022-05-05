@@ -1,6 +1,8 @@
 package bank
 
 import (
+	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"math/big"
 )
 
@@ -12,12 +14,20 @@ type TransferRequest struct {
 	GasPrice   string
 }
 
+type SignTxWithSignerAddressRequest struct {
+	SignerPrivateKey    string
+	MulSignAccPublicKey cryptoTypes.PubKey
+	Receiver            string
+	Amount              *big.Int
+	GasLimit            uint64
+	GasPrice            string
+}
+
 type TransferMultiSignRequest struct {
-	PrivateKey    string
-	From          string
-	FromPublicKey string
-	Receiver      string
-	Amount        *big.Int
-	GasLimit      uint64
-	GasPrice      string
+	MulSignAccPublicKey cryptoTypes.PubKey
+	Receiver            string
+	Amount              *big.Int
+	GasLimit            uint64
+	GasPrice            string
+	Sigs                [][]signing.SignatureV2
 }

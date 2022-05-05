@@ -1,32 +1,23 @@
 package common
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptoCodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/pkg/errors"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
-func DecodePublicKey(pkJSON string) (cryptoTypes.PubKey, error) {
-	registry := codecTypes.NewInterfaceRegistry()
-	cryptoCodec.RegisterInterfaces(registry)
-	cdc := codec.NewProtoCodec(registry)
-
+func DecodePublicKey(rpcClient client.Context, pkJSON string) (cryptoTypes.PubKey, error) {
 	var pk cryptoTypes.PubKey
-	err := cdc.UnmarshalInterfaceJSON([]byte(pkJSON), &pk)
-
+	err := rpcClient.Codec.UnmarshalInterfaceJSON([]byte(pkJSON), &pk)
 	if err != nil {
 		return nil, errors.Wrap(err, "UnmarshalInterfaceJSON`")
 	}
-
 	return pk, nil
 }
 
@@ -41,6 +32,16 @@ func IsMulSign(pk cryptoTypes.PubKey) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func IsTxSigner(user types.AccAddress, signers []types.AccAddress) bool {
+	for _, s := range signers {
+		if bytes.Equal(user.Bytes(), s.Bytes()) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func TxBuilderJsonDecoder(txConfig client.TxConfig, txJSON string) ([]byte, error) {
@@ -66,8 +67,8 @@ func TxBuilderJsonEncoder(txConfig client.TxConfig, tx client.TxBuilder) (string
 	return string(txJSONEncoder), nil
 }
 
-func TxBuilderSignatureJsonEncoder(txConfig client.TxConfig, tx signing.Tx) (string, error) {
-	sigs, err := tx.GetSignaturesV2()
+func TxBuilderSignatureJsonEncoder(txConfig client.TxConfig, tx client.TxBuilder) (string, error) {
+	sigs, err := tx.GetTx().GetSignaturesV2()
 	if err != nil {
 		return "", err
 	}

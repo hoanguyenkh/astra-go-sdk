@@ -6,6 +6,7 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/tharsis/ethermint/app"
@@ -54,13 +55,16 @@ func (c *Client) Init(cfg *config.Config) {
 	sdkConfig.SetBech32PrefixForValidator(bech32PrefixValAddr, bech32PrefixValPub)
 	sdkConfig.SetBech32PrefixForConsensusNode(bech32PrefixConsAddr, bech32PrefixConsPub)
 
+	ar := authTypes.AccountRetriever{}
+
+	//github.com/cosmos/cosmos-sdk/simapp/app.go
+	//github.com/tharsis/ethermint@v0.14.0/app/app.go -> selected
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+
 	rpcHttp, err := client.NewClientFromNode(cfg.Endpoint)
 	if err != nil {
 		panic(err)
 	}
-
-	ar := authTypes.AccountRetriever{}
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	rpcClient := client.Context{}
 	rpcClient = rpcClient.
@@ -69,7 +73,10 @@ func (c *Client) Init(cfg *config.Config) {
 		WithTxConfig(encodingConfig.TxConfig).
 		WithAccountRetriever(ar).
 		WithChainID(cfg.ChainId).
-		WithInterfaceRegistry(encodingConfig.InterfaceRegistry) //codec.NewProtoCodec
+		WithInterfaceRegistry(encodingConfig.InterfaceRegistry). //codec.NewProtoCodec
+		WithCodec(encodingConfig.Marshaler).
+		WithLegacyAmino(encodingConfig.Amino).
+		WithBroadcastMode(flags.BroadcastBlock)
 
 	c.rpcClient = rpcClient
 }
