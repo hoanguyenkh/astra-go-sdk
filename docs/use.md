@@ -1,4 +1,4 @@
-### Initilized Client
+### Initialized Client
 
 ```
 import (
