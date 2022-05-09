@@ -272,3 +272,11 @@ func (suite *AstraSdkTestSuite) TestAddresValid() {
 	rs, _ := common.IsAddressValid(addressCheck)
 	assert.Equal(suite.T(), rs, true)
 }
+
+func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
+	//"address": "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9",
+	//"hexAddress": "0xAfaF3500571b703c3bc55190a257C4881e9823c3",
+	rs, _ := common.EthAddressToCosmosAddress("AfaF3500571b703c3bc55190a257C4881e9823c3")
+	fmt.Println(rs)
+	assert.Equal(suite.T(), rs, "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9")
+}

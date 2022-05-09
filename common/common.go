@@ -94,3 +94,12 @@ func IsAddressValid(address string) (bool, error) {
 
 	return receiver.String() == address, nil
 }
+
+func EthAddressToCosmosAddress(ethAddress string) (string, error) {
+	baseAddr, err := types.AccAddressFromHex(ethAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return baseAddr.String(), nil
+}
