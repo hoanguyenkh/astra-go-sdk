@@ -130,9 +130,6 @@ func (b *Bank) SignTxWithSignerAddress(param *SignTxWithSignerAddressRequest) (c
 		return nil, errors.Wrap(err, "BuildUnsignedTx")
 	}
 
-	//js, _ := tx.PrintUnsignedTx(msg)
-	//fmt.Println(js)
-
 	err = tx.SignTxWithSignerAddress(txBuilder, param.MulSignAccPublicKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "SignTxWithSignerAddress")

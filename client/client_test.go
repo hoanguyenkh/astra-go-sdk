@@ -7,6 +7,7 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"math"
 	"math/big"
@@ -256,4 +257,18 @@ func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 	}
 
 	fmt.Println(res)
+}
+
+func (suite *AstraSdkTestSuite) TestAddresValid() {
+	addressCheck := "astra1hann2zj3sx3ympd40ptxdmpd4nd4eypm45zhhr"
+	receiver, err := types.AccAddressFromBech32(addressCheck)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(receiver.String())
+	assert.Equal(suite.T(), addressCheck, receiver.String(), "they should be equal")
+
+	rs, _ := common.IsAddressValid(addressCheck)
+	assert.Equal(suite.T(), rs, true)
 }

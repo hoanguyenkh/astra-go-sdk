@@ -21,6 +21,10 @@ type Client struct {
 	rpcClient     client.Context
 }
 
+func (c *Client) RpcClient() client.Context {
+	return c.rpcClient
+}
+
 func NewClient(cfg *config.Config) *Client {
 	cli := new(Client)
 	cli.Init(cfg)

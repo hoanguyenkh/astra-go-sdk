@@ -85,3 +85,12 @@ func TxBuilderSignatureJsonDecoder(txConfig client.TxConfig, txJson string) ([]s
 func TxHash(txBytes []byte) string {
 	return fmt.Sprintf("%X", tmhash.Sum(txBytes))
 }
+
+func IsAddressValid(address string) (bool, error) {
+	receiver, err := types.AccAddressFromBech32(address)
+	if err != nil {
+		return false, err
+	}
+
+	return receiver.String() == address, nil
+}
