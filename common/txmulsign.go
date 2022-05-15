@@ -25,12 +25,14 @@ type TxMulSign struct {
 	rpcClient        client.Context
 }
 
-func NewTxMulSign(rpcClient client.Context, privateKey *account.PrivateKeySerialized, gasLimit uint64, gasPrice string) *TxMulSign {
+func NewTxMulSign(rpcClient client.Context, privateKey *account.PrivateKeySerialized, gasLimit uint64, gasPrice string, sequenNum, accNum uint64) *TxMulSign {
 	txf := tx.Factory{}.
 		WithChainID(rpcClient.ChainID).
 		WithTxConfig(rpcClient.TxConfig).
 		WithGasPrices(gasPrice).
 		WithGas(gasLimit).
+		WithSequence(sequenNum).
+		WithAccountNumber(accNum).
 		WithSignMode(signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON)
 	//.SetTimeoutHeight(txf.TimeoutHeight())
 

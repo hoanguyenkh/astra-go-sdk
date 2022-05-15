@@ -21,6 +21,8 @@ type SignTxWithSignerAddressRequest struct {
 	Amount              *big.Int
 	GasLimit            uint64
 	GasPrice            string
+	AccNum              uint64
+	SequeNum            uint64
 }
 
 type TransferMultiSignRequest struct {
@@ -30,4 +32,6 @@ type TransferMultiSignRequest struct {
 	GasLimit            uint64
 	GasPrice            string
 	Sigs                [][]signing.SignatureV2
+	AccNum              uint64
+	SequeNum            uint64
 }

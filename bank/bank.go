@@ -42,14 +42,9 @@ func (b *Bank) Balance(addr string) (*big.Int, error) {
 }
 
 func (b *Bank) AccountRetriever(addr string) (uint64, uint64, error) {
-	addrAcc, err := types.AccAddressFromBech32(addr)
-	if err != nil {
-		return 0, 0, errors.Wrap(err, "AccAddressFromBech32")
-	}
-
 	if b.coinType == 60 {
 		queryClient := emvTypes.NewQueryClient(b.rpcClient)
-		cosmosAccount, err := queryClient.CosmosAccount(context.Background(), &emvTypes.QueryCosmosAccountRequest{Address: addrAcc.String()})
+		cosmosAccount, err := queryClient.CosmosAccount(context.Background(), &emvTypes.QueryCosmosAccountRequest{Address: addr})
 		if err != nil {
 			return 0, 0, errors.Wrap(err, "CosmosAccount")
 		}
@@ -59,6 +54,11 @@ func (b *Bank) AccountRetriever(addr string) (uint64, uint64, error) {
 
 		return accNum, accSeq, nil
 
+	}
+
+	addrAcc, err := types.AccAddressFromBech32(addr)
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "AccAddressFromBech32")
 	}
 
 	accNum, accSeq, err := b.rpcClient.AccountRetriever.GetAccountNumberSequence(b.rpcClient, addrAcc)
@@ -123,7 +123,7 @@ func (b *Bank) SignTxWithSignerAddress(param *SignTxWithSignerAddressRequest) (c
 		types.NewCoins(amount),
 	)
 
-	tx := common.NewTxMulSign(b.rpcClient, acc, param.GasLimit, param.GasPrice)
+	tx := common.NewTxMulSign(b.rpcClient, acc, param.GasLimit, param.GasPrice, param.SequeNum, param.AccNum)
 
 	txBuilder, err := tx.BuildUnsignedTx(msg)
 	if err != nil {
@@ -154,7 +154,7 @@ func (b *Bank) TransferMultiSignRawData(param *TransferMultiSignRequest) (client
 		types.NewCoins(amount),
 	)
 
-	tx := common.NewTxMulSign(b.rpcClient, nil, param.GasLimit, param.GasPrice)
+	tx := common.NewTxMulSign(b.rpcClient, nil, param.GasLimit, param.GasPrice, param.SequeNum, param.AccNum)
 
 	txBuilder, err := tx.BuildUnsignedTx(msg)
 	if err != nil {
