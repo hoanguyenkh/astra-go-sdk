@@ -2,6 +2,7 @@ package bank
 
 import (
 	"context"
+	"fmt"
 	"github.com/AstraProtocol/astra-go-sdk/account"
 	"github.com/AstraProtocol/astra-go-sdk/common"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -75,13 +76,14 @@ func (b *Bank) CheckTx(txHash string) (*types.TxResponse, error) {
 	output, err := authtx.QueryTx(b.rpcClient, txHash)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
-			return nil, nil
+			return nil, fmt.Errorf("no transaction found with hash %s. err = %v", txHash, err.Error())
 		}
+
 		return nil, err
 	}
 
 	if output.Empty() {
-		return nil, nil
+		return nil, fmt.Errorf("no transaction found with hash %s", txHash)
 	}
 
 	return output, nil
