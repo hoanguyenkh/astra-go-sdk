@@ -103,3 +103,11 @@ func EthAddressToCosmosAddress(ethAddress string) (string, error) {
 
 	return baseAddr.String(), nil
 }
+
+func IsBlocked(code uint32) bool {
+	if code == CodeTypeOK {
+		return true
+	}
+
+	return false
+}

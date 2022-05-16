@@ -5,3 +5,7 @@ const (
 )
 
 const TokenSymbol = "aastra"
+
+const (
+	CodeTypeOK uint32 = 0
+)

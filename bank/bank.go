@@ -6,12 +6,14 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/common"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 	emvTypes "github.com/tharsis/ethermint/x/evm/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"math/big"
+	"strings"
 )
 
 type Bank struct {
@@ -67,6 +69,22 @@ func (b *Bank) AccountRetriever(addr string) (uint64, uint64, error) {
 	}
 
 	return accNum, accSeq, nil
+}
+
+func (b *Bank) CheckTx(txHash string) (*types.TxResponse, error) {
+	output, err := authtx.QueryTx(b.rpcClient, txHash)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if output.Empty() {
+		return nil, nil
+	}
+
+	return output, nil
 }
 
 func (b *Bank) TransferRawData(param *TransferRequest) (client.TxBuilder, error) {

@@ -280,3 +280,15 @@ func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
 	fmt.Println(rs)
 	assert.Equal(suite.T(), rs, "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9")
 }
+
+func (suite *AstraSdkTestSuite) TestCheckTx() {
+	bankClient := suite.Client.NewBankClient()
+	rs, err := bankClient.CheckTx("B593ED27B335EAB7DC664C39B56D0BBE36A4977F25B66FAD75503F5EECE21321")
+	if err != nil {
+		panic(err)
+	}
+
+	if rs != nil && common.IsBlocked(rs.Code) {
+		fmt.Println("blocked")
+	}
+}
