@@ -174,7 +174,12 @@ func (b *Bank) TransferMultiSignRawData(param *TransferMultiSignRequest) (client
 		types.NewCoins(amount),
 	)
 
-	tx := common.NewTxMulSign(b.rpcClient, nil, param.GasLimit, param.GasPrice, param.SequeNum, param.AccNum)
+	tx := common.NewTxMulSign(b.rpcClient,
+		nil,
+		param.GasLimit,
+		param.GasPrice,
+		param.SequeNum,
+		param.AccNum)
 
 	txBuilder, err := tx.BuildUnsignedTx(msg)
 	if err != nil {

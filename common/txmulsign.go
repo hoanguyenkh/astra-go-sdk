@@ -180,7 +180,7 @@ func (t *TxMulSign) CreateTxMulSign(txBuilder client.TxBuilder, multiSignAccPubK
 
 			if err != nil {
 				addr := types.AccAddress(sig.PubKey.Address())
-				return fmt.Errorf("couldn't verify signature for address %s", addr.String())
+				return fmt.Errorf("couldn't verify signature for address %s. error = %v", addr.String(), err.Error())
 			}
 
 			if err := multisig.AddSignatureV2(multisigSig, sig, multisigPub.GetPubKeys()); err != nil {

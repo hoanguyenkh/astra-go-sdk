@@ -132,39 +132,41 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 
 func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 	/*
-			 addr astra18dgn6vxsyk69xglsp8z0r6ltc5q2slzc2nglwd
-		pucKey {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3"}]}
-		list key
-		index 0
-		{
-		 "address": "astra1p394e9sg72fq48z8k2skdh8s270n5zm04kzffu",
-		 "hexAddress": "0x0c4b5c9608f2920a9C47B2A166dcf0579F3A0B6f",
-		 "mnemonic": "project fat comfort regular strong dream crack palace boost act reform minor rack where vicious photo cat pass bounce dune fuel movie tennis sausage",
-		 "privateKey": "e7c769631951cf96909cefcf1352e50f15d4d9644b184d0500b5004edd686a6a",
-		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"}",
-		 "type": "eth_secp256k1",
-		 "validatorKey": "astravaloper1p394e9sg72fq48z8k2skdh8s270n5zm0s0rcjj"
-		} <nil>
-		index 1
-		{
-		 "address": "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9",
-		 "hexAddress": "0xAfaF3500571b703c3bc55190a257C4881e9823c3",
-		 "mnemonic": "embody thrive world there siren afraid sport utility dove rural few guess grid own strategy orbit vacuum soft gold muffin wrestle shoulder detect record",
-		 "privateKey": "6be1f98d3fb3421bd965b4aecaabecce1035d92999cc12d64d7af2ccb9f99c68",
-		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"}",
-		 "type": "eth_secp256k1",
-		 "validatorKey": "astravaloper147hn2qzhrdcrcw792xg2y47y3q0fsg7rd70cvt"
-		} <nil>
-		index 2
-		{
-		 "address": "astra1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj2gahlc",
-		 "hexAddress": "0x0F2241CC882EC11fcAb11E971e3Cfb6B80a7A412",
-		 "mnemonic": "property cactus cannon talent priority silk ice nurse such arctic dove wonder blue stumble chalk engine start know unable tool arctic tone sugar grass",
-		 "privateKey": "d85f14f8c268f516f6cfcbc293a687f6918db94a29a6cacd59a28e10ea9908a1",
-		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}",
-		 "type": "eth_secp256k1",
-		 "validatorKey": "astravaloper1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj03uxyk"
-		} <nil>
+		    addr astra18dgn6vxsyk69xglsp8z0r6ltc5q2slzc2nglwd
+			pucKey {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3"}]}
+
+			list key
+
+			index 0
+			{
+			 "address": "astra1p394e9sg72fq48z8k2skdh8s270n5zm04kzffu",
+			 "hexAddress": "0x0c4b5c9608f2920a9C47B2A166dcf0579F3A0B6f",
+			 "mnemonic": "project fat comfort regular strong dream crack palace boost act reform minor rack where vicious photo cat pass bounce dune fuel movie tennis sausage",
+			 "privateKey": "e7c769631951cf96909cefcf1352e50f15d4d9644b184d0500b5004edd686a6a",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"}",
+			 "type": "eth_secp256k1",
+			 "validatorKey": "astravaloper1p394e9sg72fq48z8k2skdh8s270n5zm0s0rcjj"
+			} <nil>
+			index 1
+			{
+			 "address": "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9",
+			 "hexAddress": "0xAfaF3500571b703c3bc55190a257C4881e9823c3",
+			 "mnemonic": "embody thrive world there siren afraid sport utility dove rural few guess grid own strategy orbit vacuum soft gold muffin wrestle shoulder detect record",
+			 "privateKey": "6be1f98d3fb3421bd965b4aecaabecce1035d92999cc12d64d7af2ccb9f99c68",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"}",
+			 "type": "eth_secp256k1",
+			 "validatorKey": "astravaloper147hn2qzhrdcrcw792xg2y47y3q0fsg7rd70cvt"
+			} <nil>
+			index 2
+			{
+			 "address": "astra1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj2gahlc",
+			 "hexAddress": "0x0F2241CC882EC11fcAb11E971e3Cfb6B80a7A412",
+			 "mnemonic": "property cactus cannon talent priority silk ice nurse such arctic dove wonder blue stumble chalk engine start know unable tool arctic tone sugar grass",
+			 "privateKey": "d85f14f8c268f516f6cfcbc293a687f6918db94a29a6cacd59a28e10ea9908a1",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}",
+			 "type": "eth_secp256k1",
+			 "validatorKey": "astravaloper1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj03uxyk"
+			} <nil>
 
 	*/
 
