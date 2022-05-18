@@ -29,8 +29,7 @@ Following is a series of examples to help you get familiar with the Astra Protoc
 capabilities of the SDK, we will try to cover them as much as possible.
 
 * [Introduction](./docs/intro.md)
-* [Client](tutorials/docs/client)
-    * [Setting up the Client](tutorials/docs/client/client.md)
+* [Client](./docs/client.md)
 * [Accounts](tutorials/docs/accounts)
     * [Keys](tutorials/docs/accounts/keys.md)
     * [Creating Accounts with HD Wallets](tutorials/docs/accounts/hdwallet_create.md)
