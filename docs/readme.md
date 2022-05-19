@@ -14,15 +14,14 @@ go get github.com/AstraProtocol/astra-go-sdk
 
 See [go.mod](./../go.mod)
 
-
 ## Import
 
 ```go
 import (
-    github.com/AstraProtocol/astra-go-sdk
+github.com/AstraProtocol/astra-go-sdk
 )
 ```
- 
+
 ## Tutorials
 
 Following is a series of examples to help you get familiar with the Astra Protocol. The list does not cover all the
@@ -32,5 +31,6 @@ capabilities of the SDK, we will try to cover them as much as possible.
 * [Client](./client.md)
 * [Accounts]()
     * [Keys](./keys.md)
+    * [Import Keys](./import_keys.md)
 * [Transactions](tutorials/docs/transactions)
     * [Transaction Parameters](tutorials/docs/transactions/params.md)

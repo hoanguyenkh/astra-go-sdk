@@ -1,6 +1,7 @@
 package account
 
 import (
+	"encoding/hex"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -10,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 	"github.com/pkg/errors"
+	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	ethermintHd "github.com/tharsis/ethermint/crypto/hd"
 	ethermintTypes "github.com/tharsis/ethermint/types"
 )
@@ -85,7 +87,6 @@ func (a *Account) ImportAccount(mnemonic string) (*PrivateKeySerialized, error) 
 
 		privateKey := ethermintHd.EthSecp256k1.Generate()(derivedPriv)
 		return NewPrivateKeySerialized(mnemonic, privateKey), nil
-
 	}
 
 	//cosmos
@@ -101,4 +102,34 @@ func (a *Account) ImportAccount(mnemonic string) (*PrivateKeySerialized, error) 
 
 	privateKey := hd.Secp256k1.Generate()(derivedPriv)
 	return NewPrivateKeySerialized(mnemonic, privateKey), nil
+}
+
+func (a *Account) ImportPrivateKey(privateKeyStr string) (*PrivateKeySerialized, error) {
+	priv, err := hex.DecodeString(privateKeyStr)
+	if err != nil {
+		return nil, err
+	}
+
+	if a.coinType == 60 {
+		privateKey := &ethsecp256k1.PrivKey{
+			Key: priv,
+		}
+		return NewPrivateKeySerialized("", privateKey), nil
+	}
+
+	/*	//cosmos
+		derivedPriv, err := hd.Secp256k1.Derive()(
+			mnemonic,
+			keyring.DefaultBIP39Passphrase,
+			types.FullFundraiserPath,
+		)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "Derive")
+		}
+
+		privateKey := hd.Secp256k1.Generate()(derivedPriv)
+		return NewPrivateKeySerialized(mnemonic, privateKey), nil*/
+
+	return nil, nil
 }

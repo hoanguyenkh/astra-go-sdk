@@ -21,7 +21,7 @@ type AstraSdkTestSuite struct {
 
 func (suite *AstraSdkTestSuite) SetupTest() {
 	cfg := &config.Config{
-		ChainId:       "astra_11110-1",
+		ChainId:       "astra_11112-1",
 		Endpoint:      "http://206.189.43.55:26657",
 		CoinType:      60,
 		PrefixAddress: "astra",
@@ -38,7 +38,7 @@ func TestAstraSdkTestSuite(t *testing.T) {
 
 func (suite *AstraSdkTestSuite) TestInitBank() {
 	bankClient := suite.Client.NewBankClient()
-	balance, err := bankClient.Balance("astra12nnueg3904ukfjel4u695ma6tvrkqvqmrqstx6")
+	balance, err := bankClient.Balance("astra18dgn6vxsyk69xglsp8z0r6ltc5q2slzc2nglwd")
 	if err != nil {
 		panic(err)
 	}
@@ -263,6 +263,7 @@ func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 
 func (suite *AstraSdkTestSuite) TestAddresValid() {
 	addressCheck := "astra1hann2zj3sx3ympd40ptxdmpd4nd4eypm45zhhr"
+	addressCheck = "astra19a3mu6k0y326mcny60m3x70qfxtkms20sn5j8p"
 	receiver, err := types.AccAddressFromBech32(addressCheck)
 	if err != nil {
 		panic(err)

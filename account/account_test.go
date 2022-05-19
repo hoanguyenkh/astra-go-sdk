@@ -32,7 +32,6 @@ func TestCreateMulAccount(t *testing.T) {
 	}
 
 	fmt.Println("key type 60")
-
 	fmt.Println("addr", addr)
 	fmt.Println("pucKey", pucKey)
 	fmt.Println("list key")
@@ -40,5 +39,15 @@ func TestCreateMulAccount(t *testing.T) {
 		fmt.Println("index", i)
 		fmt.Println(serialized.String())
 	}
+}
 
+func TestImportPrivateKey(t *testing.T) {
+	n := NewAccount(60)
+	key, err := n.ImportPrivateKey("c6849b352fb9027e0a4592c52226de2f37747192412f50f8daeac6c5a6f5e9de")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("key type 118")
+	fmt.Println(key.String())
 }
