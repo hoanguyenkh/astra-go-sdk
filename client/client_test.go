@@ -224,6 +224,7 @@ func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 
 	fmt.Println("start transfer")
 
+	//200
 	request := &bank.TransferMultiSignRequest{
 		MulSignAccPublicKey: pk,
 		Receiver:            "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
