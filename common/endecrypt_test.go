@@ -7,7 +7,7 @@ import (
 )
 
 func TestECBEncrypt(t *testing.T) {
-	data := "property cactus cannon talent priority silk ice nurse such arctic dove wonder blue stumble chalk engine start know unable tool arctic tone sugar grass"
+	data := "testing seeding"
 	result, err := ECBEncrypt([]byte(data), []byte("WA5Nyx4ODj1Y%9j3"))
 	if err != nil {
 		panic(err)

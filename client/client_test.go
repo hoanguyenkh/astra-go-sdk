@@ -38,7 +38,7 @@ func TestAstraSdkTestSuite(t *testing.T) {
 
 func (suite *AstraSdkTestSuite) TestInitBank() {
 	bankClient := suite.Client.NewBankClient()
-	balance, err := bankClient.Balance("astra18dgn6vxsyk69xglsp8z0r6ltc5q2slzc2nglwd")
+	balance, err := bankClient.Balance("astra1gvwtjcv36nfqe8w3qyem6h600n750jqg6a576j")
 	if err != nil {
 		panic(err)
 	}
@@ -76,15 +76,15 @@ func (suite *AstraSdkTestSuite) TestGenMulSignAccount() {
 
 func (suite *AstraSdkTestSuite) TestTransfer() {
 	/*
-			{
-		 "address": "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
-		 "hexAddress": "0xa69b7d1487944b924f99ACBb71e4488a868F9f38",
-		 "mnemonic": "strike enhance tray always bulb pioneer message hair swim alone soda possible print vivid delay winner guilt test skirt liar slab fog balance fence",
-		 "privateKey": "5efa3b891b24832c185f3133f4eb978345d3f1563346ff26465dac8f1832dcc1",
-		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"Ag/YFj8pCpDgLkz+B4D2IrRplrqZHyCf4oDy5As9AFbI\"}",
-		 "type": "eth_secp256k1",
-		 "validatorKey": "astravaloper156dh69y8j39eynue4jahrezg32rgl8ecndzxt3"
-		}
+		{
+			 "address": "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
+			 "hexAddress": "0xa69b7d1487944b924f99ACBb71e4488a868F9f38",
+			 "mnemonic": "strike enhance tray always bulb pioneer message hair swim alone soda possible print vivid delay winner guilt test skirt liar slab fog balance fence",
+			 "privateKey": "5efa3b891b24832c185f3133f4eb978345d3f1563346ff26465dac8f1832dcc1",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"Ag/YFj8pCpDgLkz+B4D2IrRplrqZHyCf4oDy5As9AFbI\"}",
+			 "type": "eth_secp256k1",
+			 "validatorKey": "astravaloper156dh69y8j39eynue4jahrezg32rgl8ecndzxt3"
+			}
 	*/
 
 	bankClient := suite.Client.NewBankClient()
@@ -95,12 +95,9 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 	request := &bank.TransferRequest{
 		PrivateKey: "saddle click spawn install mutual visa usage eyebrow awesome inherit rifle moon giraffe deposit reduce east gossip ice salute hill fire require knife traffic",
 		Receiver:   "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
-		//Receiver: "astra1p394e9sg72fq48z8k2skdh8s270n5zm04kzffu",
-		//Receiver: "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9",
-		//Receiver: "astra1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj2gahlc",
-		Amount:   amount,
-		GasLimit: 200000,
-		GasPrice: "0.001aastra",
+		Amount:     amount,
+		GasLimit:   200000,
+		GasPrice:   "0.001aastra",
 	}
 
 	txBuilder, err := bankClient.TransferRawData(request)
@@ -132,50 +129,49 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 
 func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 	/*
-		    addr astra18dgn6vxsyk69xglsp8z0r6ltc5q2slzc2nglwd
-			pucKey {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3"}]}
-
+		    addr astra1ha0vgh05zzlwdeejxq9aq7gqr6jzs7stdhlfra
+			pucKey {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml"}]}
 			list key
-
 			index 0
 			{
-			 "address": "astra1p394e9sg72fq48z8k2skdh8s270n5zm04kzffu",
-			 "hexAddress": "0x0c4b5c9608f2920a9C47B2A166dcf0579F3A0B6f",
-			 "mnemonic": "project fat comfort regular strong dream crack palace boost act reform minor rack where vicious photo cat pass bounce dune fuel movie tennis sausage",
-			 "privateKey": "e7c769631951cf96909cefcf1352e50f15d4d9644b184d0500b5004edd686a6a",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"}",
+			 "address": "astra1dmdsy082730stdletm7z6zulfxuez4lsx3tztx",
+			 "hexAddress": "0x6Edb023ceAF45F05b7f95efC2d0B9f49B99157F0",
+			 "mnemonic": "ignore risk morning strike school street radar silk recipe health december system inflict gold foster item end twenty magic shine oppose island loop impact",
+			 "privateKey": "7f1d3df4044f09b1edfab34c7e3fee92396ea23861e96a8ac7429efcf158d794",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89\"}",
 			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper1p394e9sg72fq48z8k2skdh8s270n5zm0s0rcjj"
+			 "validatorKey": "astravaloper1dmdsy082730stdletm7z6zulfxuez4lsrg2nsg"
 			} <nil>
 			index 1
 			{
-			 "address": "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9",
-			 "hexAddress": "0xAfaF3500571b703c3bc55190a257C4881e9823c3",
-			 "mnemonic": "embody thrive world there siren afraid sport utility dove rural few guess grid own strategy orbit vacuum soft gold muffin wrestle shoulder detect record",
-			 "privateKey": "6be1f98d3fb3421bd965b4aecaabecce1035d92999cc12d64d7af2ccb9f99c68",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"}",
+			 "address": "astra1fd39nlc4hsl7ma9knpjwlhcrnunz66dnvf5agx",
+			 "hexAddress": "0x4b6259ff15Bc3FEdf4B69864EfdF039F262d69B3",
+			 "mnemonic": "seven mean snap illness couch excite item topic tobacco erosion tourist blue van possible wolf gadget combine excess brush goddess glory subway few mind",
+			 "privateKey": "8dca20a27b0bfdcf1dacc9b2f71d4b7e7d269a4b87949707c12ef2ba328fd0e9",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn\"}",
 			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper147hn2qzhrdcrcw792xg2y47y3q0fsg7rd70cvt"
+			 "validatorKey": "astravaloper1fd39nlc4hsl7ma9knpjwlhcrnunz66dnfs4vng"
 			} <nil>
 			index 2
 			{
-			 "address": "astra1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj2gahlc",
-			 "hexAddress": "0x0F2241CC882EC11fcAb11E971e3Cfb6B80a7A412",
-			 "mnemonic": "property cactus cannon talent priority silk ice nurse such arctic dove wonder blue stumble chalk engine start know unable tool arctic tone sugar grass",
-			 "privateKey": "d85f14f8c268f516f6cfcbc293a687f6918db94a29a6cacd59a28e10ea9908a1",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}",
+			 "address": "astra1gc0v03kjrg9uv7duvzqsndv3nhkhehvkwuhkdr",
+			 "hexAddress": "0x461EC7C6D21a0BC679bC608109b5919DEd7Cdd96",
+			 "mnemonic": "swap exhaust letter left light trust diet piano pride rifle trust orbit clip suggest achieve unaware please guess lawsuit doctor use bargain jealous weekend",
+			 "privateKey": "e3f46776e933129611b3cb6418176dcd2a9badd8188fb4804d5b822548200bac",
+			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml\"}",
 			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper1pu3yrnyg9mq3lj43r6t3u08mdwq20fqj03uxyk"
-			} <nil>
-
+			 "validatorKey": "astravaloper1gc0v03kjrg9uv7duvzqsndv3nhkhehvkt9k8kd"
+			}
 	*/
 
-	pk, err := common.DecodePublicKey(suite.Client.rpcClient, "{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":2,\"public_keys\":[{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}]}")
+	pk, err := common.DecodePublicKey(
+		suite.Client.rpcClient,
+		"{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":2,\"public_keys\":[{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml\"}]}",
+	)
 	if err != nil {
 		panic(err)
 	}
 
-	//astra18dgn6vxsyk69xglsp8z0r6ltc5q2slzc2nglwd
 	from := types.AccAddress(pk.Address())
 	fmt.Println("from", from.String())
 
@@ -185,9 +181,8 @@ func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 	fmt.Println("amount", amount.String())
 
 	listPrivate := []string{
-		"project fat comfort regular strong dream crack palace boost act reform minor rack where vicious photo cat pass bounce dune fuel movie tennis sausage",
-		"embody thrive world there siren afraid sport utility dove rural few guess grid own strategy orbit vacuum soft gold muffin wrestle shoulder detect record",
-		"property cactus cannon talent priority silk ice nurse such arctic dove wonder blue stumble chalk engine start know unable tool arctic tone sugar grass",
+		"ignore risk morning strike school street radar silk recipe health december system inflict gold foster item end twenty magic shine oppose island loop impact",
+		"seven mean snap illness couch excite item topic tobacco erosion tourist blue van possible wolf gadget combine excess brush goddess glory subway few mind",
 	}
 
 	signList := make([][]signingTypes.SignatureV2, 0)
@@ -262,7 +257,7 @@ func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 	fmt.Println(res)
 }
 
-func (suite *AstraSdkTestSuite) TestAddresValid() {
+func (suite *AstraSdkTestSuite) TestAddressValid() {
 	addressCheck := "astra1hann2zj3sx3ympd40ptxdmpd4nd4eypm45zhhr"
 	addressCheck = "astra19a3mu6k0y326mcny60m3x70qfxtkms20sn5j8p"
 	receiver, err := types.AccAddressFromBech32(addressCheck)
@@ -278,8 +273,6 @@ func (suite *AstraSdkTestSuite) TestAddresValid() {
 }
 
 func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
-	//"address": "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9",
-	//"hexAddress": "0xAfaF3500571b703c3bc55190a257C4881e9823c3",
 	rs, _ := common.EthAddressToCosmosAddress("AfaF3500571b703c3bc55190a257C4881e9823c3")
 	fmt.Println(rs)
 	assert.Equal(suite.T(), rs, "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9")
