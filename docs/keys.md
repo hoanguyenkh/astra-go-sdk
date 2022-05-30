@@ -67,8 +67,8 @@ import (
 
 func main() {
 	cfg := &config.Config{
-		ChainId:       "astra_11110-1",
-		Endpoint:      "http://206.189.43.55:26657",
+      ChainId:       "chain-id",
+      Endpoint:      "http://localhost:26657",
 		CoinType:      60,
 		PrefixAddress: "astra",
 		TokenSymbol:   "aastra",
