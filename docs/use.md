@@ -1,6 +1,6 @@
 ### Initialized Client
 
-```
+```go
 import (
     "fmt"
     "github.com/AstraProtocol/astra-go-sdk/client"
@@ -23,7 +23,7 @@ func main() {
 
 ### Create account
 
-```
+```go
     accClient := client.NewAccountClient()
     acc, err := accClient.CreateAccount()
     if err != nil {
@@ -35,7 +35,7 @@ func main() {
 
 ### Create MultiSign Account
 
-```
+```go
     accClient := client.NewAccountClient()
     acc, addr, pubKey, err := accClient.CreateMulSignAccount(3, 2)
     if err != nil {
