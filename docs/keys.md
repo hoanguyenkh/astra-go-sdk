@@ -29,7 +29,7 @@ To generate an account on Incognito using this SDK.
 keyWallet := astraClient.NewAccountClient()
 acc, err := keyWallet.CreateAccount()
 if err != nil {
-    panic(err)
+panic(err)
 }
 
 data, _ := acc.String()
@@ -40,15 +40,15 @@ To generate a multisign account on Incognito using this SDK.
 ```go
 acc, addr, pubKey, err := astraClient.CreateMulSignAccount(3, 2)
 if err != nil {
-    panic(err)
+panic(err)
 }
 
 fmt.Println("addr", addr)
 fmt.Println("pucKey", pubKey)
 fmt.Println("list key")
 for i, item := range acc {
-  fmt.Println("index", i)
-  fmt.Println(item.String())
+fmt.Println("index", i)
+fmt.Println(item.String())
 }
 ```
 
@@ -67,8 +67,8 @@ import (
 
 func main() {
 	cfg := &config.Config{
-      ChainId:       "chain-id",
-      Endpoint:      "http://localhost:26657",
+		ChainId:       "chain-id",
+		Endpoint:      "http://localhost:26657",
 		CoinType:      60,
 		PrefixAddress: "astra",
 		TokenSymbol:   "aastra",
