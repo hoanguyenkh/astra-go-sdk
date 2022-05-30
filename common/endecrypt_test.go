@@ -27,11 +27,33 @@ func TestECBEncrypt(t *testing.T) {
 
 func TestVerifySignature(t *testing.T) {
 	publicKey := "A/tdneaDL83fm2BNjYRKacJvRo81iDaYSiybfaDUSM3I"
-	publicKey = "A/tdneaDL83fm2BNjYRKacJvRo81iDaYSiybfaDUSM3I\n"
-	signature := "MEQCIFKsQUbx0dzVLSqtfz8CGKGeY0/p9xEwED/76X1EdznaAiBk2XZTkOEi\nJpBoiKXbw3bQklw+8M3AffqGwBNJlj+xYQ=="
+	publicKey = "A/tdneaDL83fm2BNjYRKacJvRo81iDaYSiybfaDUSM3I"
+	signature := "MEQCIFKsQUbx0dzVLSqtfz8CGKGeY0/p9xEwED/76X1EdznaAiBk2XZTkOEiJpBoiKXbw3bQklw+8M3AffqGwBNJlj+xYQ=="
 	msg := "ECDSA is cool."
 
 	isValid, err := VerifySignature(publicKey, signature, msg)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(isValid)
+}
+
+func TestGenKeyAndSignData(t *testing.T) {
+	privateKey, publickKey := GenPrivateKeySign()
+	fmt.Println("privateKey", privateKey)
+	fmt.Println("publickKey", publickKey)
+
+	msg := "ECDSA is cool."
+	sign, err := SignatureData(privateKey, msg)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("sign", sign)
+
+	isValid, err := VerifySignature(publickKey, sign, msg)
 	if err != nil {
 		panic(err)
 	}

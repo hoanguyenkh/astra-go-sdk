@@ -3,8 +3,11 @@ package common
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
@@ -117,6 +120,41 @@ func IsBlocked(code uint32) bool {
 	}
 
 	return false
+}
+
+func GenPrivateKeySign() (string, string) {
+	key, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+	if err != nil {
+		panic(err)
+	}
+
+	pubkey := elliptic.MarshalCompressed(crypto.S256(), key.X, key.Y)
+
+	privkey := make([]byte, 32)
+	blob := key.D.Bytes()
+	copy(privkey[32-len(blob):], blob)
+
+	privkeyStr := hex.EncodeToString(privkey)
+
+	pubkeyStr := base64.StdEncoding.EncodeToString(pubkey)
+
+	return privkeyStr, pubkeyStr
+}
+
+func SignatureData(privateKey string, msg string) (string, error) {
+	privKey, err := crypto.HexToECDSA(privateKey)
+
+	hash := sha256.Sum256([]byte(msg))
+	sig, err := ecdsa.SignASN1(rand.Reader, privKey, hash[:])
+	if err != nil {
+		panic(err)
+	}
+
+	//signEncode := hex.EncodeToString(sig)
+
+	signEncode := base64.StdEncoding.EncodeToString(sig)
+
+	return signEncode, nil
 }
 
 func VerifySignature(publicKey string, signature string, msg string) (bool, error) {
