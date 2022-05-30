@@ -21,8 +21,8 @@ type AstraSdkTestSuite struct {
 
 func (suite *AstraSdkTestSuite) SetupTest() {
 	cfg := &config.Config{
-		ChainId:       "astra_11112-1",
-		Endpoint:      "http://206.189.43.55:26657",
+		ChainId:       "",
+		Endpoint:      "",
 		CoinType:      60,
 		PrefixAddress: "astra",
 		TokenSymbol:   "aastra",
