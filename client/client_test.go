@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"math"
 	"math/big"
+	"os"
 	"testing"
 )
 
@@ -21,8 +22,8 @@ type AstraSdkTestSuite struct {
 
 func (suite *AstraSdkTestSuite) SetupTest() {
 	cfg := &config.Config{
-		ChainId:       "",
-		Endpoint:      "",
+		ChainId:       os.Getenv("CHAIN_ID"),
+		Endpoint:      os.Getenv("END_POINT"),
 		CoinType:      60,
 		PrefixAddress: "astra",
 		TokenSymbol:   "aastra",
