@@ -1,8 +1,10 @@
-# astra-sdk
+# astra-go-sdk
 
 ## Introduction
 
 A Golang SDK for interacting with the Astra Protocol.
+
+*Note: All accounts in this repository is demo wallet, it is work only on testnet*
 
 ## Installation
 
