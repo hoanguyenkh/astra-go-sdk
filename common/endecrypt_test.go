@@ -1,7 +1,11 @@
 package common
 
 import (
+	"crypto/elliptic"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -59,4 +63,27 @@ func TestGenKeyAndSignData(t *testing.T) {
 	}
 
 	fmt.Println(isValid)
+}
+
+func TestImportPrivateKey(t *testing.T) {
+	privateKey := "1214c33e0ea1815464124ca3566aa406cc59f59d272b183ff33bd4cbea7d8dba"
+	key, err := crypto.HexToECDSA(privateKey)
+	if err != nil {
+		panic(err)
+	}
+
+	pubkey := elliptic.MarshalCompressed(crypto.S256(), key.X, key.Y)
+
+	privkey := make([]byte, 32)
+	blob := key.D.Bytes()
+	copy(privkey[32-len(blob):], blob)
+
+	privkeyStr := hex.EncodeToString(privkey)
+
+	pubkeyStr := base64.StdEncoding.EncodeToString(pubkey)
+
+	assert.Equal(t, privateKey, privkeyStr)
+
+	fmt.Println(privkeyStr)
+	fmt.Println(pubkeyStr)
 }

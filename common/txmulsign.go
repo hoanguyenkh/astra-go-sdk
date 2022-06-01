@@ -108,18 +108,16 @@ func (t *TxMulSign) SignTxWithSignerAddress(txBuilder client.TxBuilder, multiSig
 
 	pubKey := t.signerPrivateKey.PublicKey()
 
-	sigData := signing.SingleSignatureData{
-		SignMode:  t.txf.SignMode(),
-		Signature: nil,
-	}
-
-	sig := signing.SignatureV2{
-		PubKey:   pubKey,
-		Data:     &sigData,
+	sigV2 := signing.SignatureV2{
+		PubKey: pubKey,
+		Data: &signing.SingleSignatureData{
+			SignMode:  t.txf.SignMode(),
+			Signature: nil,
+		},
 		Sequence: t.txf.Sequence(),
 	}
 
-	if err := txBuilder.SetSignatures(sig); err != nil {
+	if err := txBuilder.SetSignatures(sigV2); err != nil {
 		return errors.Wrap(err, "SetSignatures")
 	}
 

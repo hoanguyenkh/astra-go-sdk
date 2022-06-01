@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/ethereum/go-ethereum/crypto"
+	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"golang.org/x/crypto/cryptobyte"
@@ -202,4 +203,13 @@ func VerifySignature(publicKey string, signature string, msg string) (bool, erro
 	hash := sha256.Sum256([]byte(msg))
 	valid := ecdsa.Verify(pkKey, hash[:], r, s)
 	return valid, nil
+}
+
+func VerifyHdPath(hdPath string) (bool, error) {
+	_, err := hdwallet.ParseDerivationPath(hdPath)
+	if err != nil {
+		return false, errors.Wrap(err, "ParseDerivationPath")
+	}
+
+	return true, nil
 }

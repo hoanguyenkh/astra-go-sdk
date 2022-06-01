@@ -48,6 +48,6 @@ func TestImportPrivateKey(t *testing.T) {
 		panic(err)
 	}
 
-	fmt.Println("key type 118")
+	fmt.Println("key type 60")
 	fmt.Println(key.String())
 }

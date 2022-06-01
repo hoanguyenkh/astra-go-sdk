@@ -290,3 +290,29 @@ func (suite *AstraSdkTestSuite) TestCheckTx() {
 		fmt.Println("blocked")
 	}
 }
+
+func (suite *AstraSdkTestSuite) TestImportAccountViaHdPath() {
+	accClient := suite.Client.NewAccountClient()
+
+	_, err := common.VerifyHdPath("m/44'/60'/0'/0/0")
+	if err != nil {
+		panic(err)
+	}
+
+	nmemonic := "secret immense amount trial polar security mother scare useful hen squeeze confirm right size best trash team clock matter grow copy quiz capital ill"
+
+	for i := 100083357; i <= (100083357 + 20); i++ {
+		s := fmt.Sprintf("m/44'/60'/%v'/1/0", i)
+		wallet, err := accClient.ImportHdPath(
+			nmemonic,
+			s,
+		)
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("index ", i, s)
+		fmt.Println(wallet.String())
+	}
+}
