@@ -32,7 +32,7 @@ capabilities of the SDK, we will try to cover them as much as possible.
 * [Introduction](./intro.md)
 * [Client](./client.md)
 * Accounts
-    * [Keys](./keys.md)
+    * [Wallet](./keys.md)
     * [Import Keys](./import_keys.md)
 * Transactions
     * [Transaction Parameters](tutorials/docs/transactions/params.md)
