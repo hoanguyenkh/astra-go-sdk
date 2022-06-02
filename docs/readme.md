@@ -31,8 +31,8 @@ capabilities of the SDK, we will try to cover them as much as possible.
 
 * [Introduction](./intro.md)
 * [Client](./client.md)
-* [Accounts]()
+* Accounts
     * [Keys](./keys.md)
     * [Import Keys](./import_keys.md)
-* [Transactions](tutorials/docs/transactions)
+* Transactions
     * [Transaction Parameters](tutorials/docs/transactions/params.md)
