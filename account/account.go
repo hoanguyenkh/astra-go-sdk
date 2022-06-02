@@ -64,13 +64,14 @@ func (a *Account) CreateMulSignAccount(totalSign, multisigThreshold int) ([]*Pri
 	pk := multisig.NewLegacyAminoPubKey(multisigThreshold, pks)
 
 	addr := types.AccAddress(pk.Address())
+
 	apk, err := codecTypes.NewAnyWithValue(pk)
 	if err != nil {
-		return nil, "", "", errors.Wrap(err, "NewKeyOutput")
+		return nil, "", "", errors.Wrap(err, "NewAnyWithValue")
 	}
-	bz, err := codec.ProtoMarshalJSON(apk, nil)
+	pkMarshal, err := codec.ProtoMarshalJSON(apk, nil)
 
-	return listPrivate, addr.String(), string(bz), nil
+	return listPrivate, addr.String(), string(pkMarshal), nil
 }
 
 //Import an Account

@@ -22,25 +22,18 @@ func NewPrivateKeySerialized(mnemonic string, privateKey cryptoTypes.PrivKey) *P
 }
 
 func (p *PrivateKeySerialized) String() (string, error) {
-	pub := p.privateKey.PubKey()
-
-	addr := types.AccAddress(pub.Address())
-	validatorAddr := types.ValAddress(pub.Address())
-	hexAddr := common.BytesToAddress(pub.Address().Bytes())
-
-	apk, err := codecTypes.NewAnyWithValue(pub)
+	pubKey, err := p.PublicKeyJson()
 	if err != nil {
-		return "", errors.Wrap(err, "NewKeyOutput")
+		return "", errors.Wrap(err, "PublicKeyJson")
 	}
-	bz, err := codec.ProtoMarshalJSON(apk, nil)
 
 	rs := map[string]string{
 		"privateKey":   hex.EncodeToString(p.privateKey.Bytes()),
 		"mnemonic":     p.mnemonic,
-		"publicKey":    string(bz),
-		"validatorKey": validatorAddr.String(),
-		"address":      addr.String(),
-		"hexAddress":   hexAddr.String(),
+		"publicKey":    pubKey,
+		"validatorKey": p.ValidatorAddress().String(),
+		"address":      p.AccAddress().String(),
+		"hexAddress":   p.HexAddress().String(),
 		"type":         p.privateKey.Type(),
 	}
 

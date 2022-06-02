@@ -317,3 +317,23 @@ func (suite *AstraSdkTestSuite) TestImportAccountViaHdPath() {
 		fmt.Println(wallet.String())
 	}
 }
+
+func (suite *AstraSdkTestSuite) TestImportByNmemonic() {
+	accClient := suite.Client.NewAccountClient()
+	key, err := accClient.ImportAccount("effort behave trash gaze youth food north brain poverty drive armed split kind script fox frog breeze cliff bright raise napkin question payment upset")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(key.String())
+}
+
+func (suite *AstraSdkTestSuite) TestImportByPrivatekey() {
+	accClient := suite.Client.NewAccountClient()
+	key, err := accClient.ImportPrivateKey("b8f7f2e5bab9c0b08df50cb5aa93ca8d1f5fe4aa11677ebf05232930d28349a9")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(key.String())
+}
