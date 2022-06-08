@@ -5,6 +5,7 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/account"
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/config"
+	"github.com/AstraProtocol/astra-go-sdk/scan"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -91,4 +92,8 @@ func (c *Client) NewAccountClient() *account.Account {
 
 func (c *Client) NewBankClient() *bank.Bank {
 	return bank.NewBank(c.rpcClient, c.tokenSymbol, c.coinType)
+}
+
+func (c *Client) NewScanner() *scan.Scanner {
+	return scan.NewScanner(c.rpcClient)
 }

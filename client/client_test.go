@@ -1,14 +1,17 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/common"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"log"
 	"math"
 	"math/big"
 	"os"
@@ -21,6 +24,11 @@ type AstraSdkTestSuite struct {
 }
 
 func (suite *AstraSdkTestSuite) SetupTest() {
+	err := godotenv.Load("./../dev.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	cfg := &config.Config{
 		ChainId:       os.Getenv("CHAIN_ID"),
 		Endpoint:      os.Getenv("END_POINT"),
@@ -275,9 +283,16 @@ func (suite *AstraSdkTestSuite) TestAddressValid() {
 }
 
 func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
-	rs, _ := common.EthAddressToCosmosAddress("AfaF3500571b703c3bc55190a257C4881e9823c3")
+	eth := "0xAfaF3500571b703c3bc55190a257C4881e9823c3"
+	cosmos := "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9"
+
+	rs, _ := common.EthAddressToCosmosAddress(eth)
 	fmt.Println(rs)
-	assert.Equal(suite.T(), rs, "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9")
+	assert.Equal(suite.T(), cosmos, rs)
+
+	rs1, _ := common.CosmosAddressToEthAddress(cosmos)
+	fmt.Println(rs1)
+	assert.Equal(suite.T(), eth, rs1)
 }
 
 func (suite *AstraSdkTestSuite) TestCheckTx() {
@@ -336,4 +351,18 @@ func (suite *AstraSdkTestSuite) TestImportByPrivatekey() {
 	}
 
 	fmt.Println(key.String())
+}
+
+func (suite *AstraSdkTestSuite) TestScanner() {
+	client := suite.Client.NewScanner()
+	//listTx, err := client.ScanByBlockHeight("468754") //eth
+	listTx, err := client.ScanByBlockHeight("450666") //cosmos
+	if err != nil {
+		panic(err)
+	}
+
+	rs, _ := json.MarshalIndent(listTx, " ", " ")
+
+	fmt.Println(string(rs))
+
 }

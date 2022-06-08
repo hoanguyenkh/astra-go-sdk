@@ -14,6 +14,7 @@ import (
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
@@ -56,12 +57,13 @@ func IsTxSigner(user types.AccAddress, signers []types.AccAddress) bool {
 }
 
 func TxBuilderJsonDecoder(txConfig client.TxConfig, txJSON string) ([]byte, error) {
-	txJSONDecoder, err := txConfig.TxJSONDecoder()([]byte(txJSON))
+	tx, err := txConfig.TxJSONDecoder()([]byte(txJSON))
 	if err != nil {
 		return nil, err
 	}
 
-	txBytes, err := txConfig.TxEncoder()(txJSONDecoder)
+	//convert to []byte
+	txBytes, err := txConfig.TxEncoder()(tx)
 	if err != nil {
 		panic(err)
 	}
@@ -107,12 +109,19 @@ func IsAddressValid(address string) (bool, error) {
 }
 
 func EthAddressToCosmosAddress(ethAddress string) (string, error) {
-	baseAddr, err := types.AccAddressFromHex(ethAddress)
+	ethAddr := ethCommon.HexToAddress(ethAddress)
+	baseAddr := types.AccAddress(ethAddr.Bytes())
+	return baseAddr.String(), nil
+}
+
+func CosmosAddressToEthAddress(cosmosAddress string) (string, error) {
+	baseAddr, err := types.AccAddressFromBech32(cosmosAddress)
 	if err != nil {
 		return "", err
 	}
 
-	return baseAddr.String(), nil
+	ethAddress := ethCommon.BytesToAddress(baseAddr.Bytes())
+	return ethAddress.String(), nil
 }
 
 func IsBlocked(code uint32) bool {

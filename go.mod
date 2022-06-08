@@ -6,6 +6,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.45.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.10.16
+	github.com/joho/godotenv v1.4.0
 	github.com/miguelmota/go-ethereum-hdwallet v0.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
