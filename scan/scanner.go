@@ -11,7 +11,6 @@ import (
 	"github.com/tendermint/tendermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"math/big"
-	"strconv"
 	"time"
 )
 
@@ -73,12 +72,7 @@ func (b *Scanner) ScanViaWebsocket() {
 	select {}
 }
 
-func (b *Scanner) ScanByBlockHeight(blockHeight string) ([]*Txs, error) {
-	height, err := strconv.ParseInt(blockHeight, 10, 64)
-	if err != nil {
-		return nil, errors.Wrap(err, "ParseInt")
-	}
-
+func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	/*chainHeight, err := b.GetChainHeight()
 	if err != nil {
 		return nil, errors.Wrap(err, "GetChainHeight")
