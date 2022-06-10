@@ -79,14 +79,14 @@ func (b *Scanner) ScanByBlockHeight(blockHeight string) ([]*Txs, error) {
 		return nil, errors.Wrap(err, "ParseInt")
 	}
 
-	chainHeight, err := b.GetChainHeight()
+	/*chainHeight, err := b.GetChainHeight()
 	if err != nil {
 		return nil, errors.Wrap(err, "GetChainHeight")
 	}
 
 	if height > chainHeight {
 		return nil, errors.New(fmt.Sprintf("block request large than current block %v > %v", height, chainHeight))
-	}
+	}*/
 
 	lisTx := make([]*Txs, 0)
 
