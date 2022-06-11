@@ -151,16 +151,20 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 
 	var amountStr string
 	var to string
+	var txType string
 
 	switch data.(type) {
 	case *evmtypes.AccessListTx:
+		txType = msgEth.Type()
 		//nothing
 	case *evmtypes.LegacyTx:
 		var legacyTx *evmtypes.LegacyTx
 		legacyTx = data.(*evmtypes.LegacyTx)
 		amountStr = legacyTx.Amount.String()
 		to = legacyTx.To
+		txType = "legacy_tx"
 	case *evmtypes.DynamicFeeTx:
+		txType = msgEth.Type()
 		amountStr = data.GetValue().String()
 		to = data.GetTo().String()
 	default:
@@ -170,7 +174,7 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	sig := msgEth.GetSigners()
 	from := sig[0].String()
 
-	txs.Type = msgEth.Type()
+	txs.Type = txType
 	txs.EthTxHash = msgEth.Hash
 
 	ethSender, err := common.CosmosAddressToEthAddress(from)
