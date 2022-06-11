@@ -114,6 +114,12 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 			RawData:     string(txBytes),
 		}
 
+		h := fmt.Sprintf("%X", rawData.Hash())
+
+		if h == "6DAA4CAA168236B738E221241FECFEFF11422B72E0CE7AD4CDDA2980896E1BCF" {
+			fmt.Println(fmt.Sprintf("%X", rawData.Hash()))
+
+		}
 		msg := tx.GetMsgs()[0]
 		msgEth, ok := msg.(*evmtypes.MsgEthereumTx)
 		if ok {
@@ -143,6 +149,24 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 		return errors.Wrap(err, "UnpackTxData")
 	}
 
+	var amountStr string
+	var to string
+
+	switch data.(type) {
+	case *evmtypes.AccessListTx:
+		//nothing
+	case *evmtypes.LegacyTx:
+		var legacyTx *evmtypes.LegacyTx
+		legacyTx = data.(*evmtypes.LegacyTx)
+		amountStr = legacyTx.Amount.String()
+		to = legacyTx.To
+	case *evmtypes.DynamicFeeTx:
+		amountStr = data.GetValue().String()
+		to = data.GetTo().String()
+	default:
+		return errors.Wrap(err, "UnpackTxData")
+	}
+
 	sig := msgEth.GetSigners()
 	from := sig[0].String()
 
@@ -157,22 +181,22 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	txs.Sender = from
 	txs.EthSender = ethSender
 
-	receiver, err := common.EthAddressToCosmosAddress(data.GetTo().String())
+	receiver, err := common.EthAddressToCosmosAddress(to)
 	if err != nil {
 		return errors.Wrap(err, "EthAddressToCosmosAddress")
 	}
 
 	txs.Receiver = receiver
-	txs.EthReceiver = data.GetTo().String()
+	txs.EthReceiver = to
 
-	amount, ok := big.NewInt(0).SetString(data.GetValue().String(), 10)
+	amount, ok := big.NewInt(0).SetString(amountStr, 10)
 	if !ok {
 		return errors.New("Parser amount invalid")
 	}
 
 	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
 
-	txs.Amount = data.GetValue().String()
+	txs.Amount = amountStr
 	txs.TokenSymbol = ""
 
 	return nil
