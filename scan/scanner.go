@@ -73,15 +73,6 @@ func (b *Scanner) ScanViaWebsocket() {
 }
 
 func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
-	/*chainHeight, err := b.GetChainHeight()
-	if err != nil {
-		return nil, errors.Wrap(err, "GetChainHeight")
-	}
-
-	if height > chainHeight {
-		return nil, errors.New(fmt.Sprintf("block request large than current block %v > %v", height, chainHeight))
-	}*/
-
 	lisTx := make([]*Txs, 0)
 
 	output, err := b.getBlock(&height)
@@ -114,12 +105,6 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 			RawData:     string(txBytes),
 		}
 
-		h := fmt.Sprintf("%X", rawData.Hash())
-
-		if h == "6DAA4CAA168236B738E221241FECFEFF11422B72E0CE7AD4CDDA2980896E1BCF" {
-			fmt.Println(fmt.Sprintf("%X", rawData.Hash()))
-
-		}
 		msg := tx.GetMsgs()[0]
 		msgEth, ok := msg.(*evmtypes.MsgEthereumTx)
 		if ok {
@@ -166,11 +151,6 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	sig := msgEth.GetSigners()
 	from := sig[0].String()
 
-	to := ""
-	if data.GetTo() != nil {
-		to = data.GetTo().String()
-	}
-
 	amountStr := "0"
 	if data.GetValue() != nil {
 		amountStr = data.GetValue().String()
@@ -188,9 +168,15 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	txs.Sender = from
 	txs.EthSender = ethSender
 
-	receiver, err := common.EthAddressToCosmosAddress(to)
-	if err != nil {
-		return errors.Wrap(err, "EthAddressToCosmosAddress")
+	to := ""
+	receiver := ""
+	if data.GetTo() != nil {
+		to = data.GetTo().String()
+
+		receiver, err = common.EthAddressToCosmosAddress(to)
+		if err != nil {
+			return errors.Wrap(err, "EthAddressToCosmosAddress")
+		}
 	}
 
 	txs.Receiver = receiver
