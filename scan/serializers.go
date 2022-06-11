@@ -3,6 +3,7 @@ package scan
 type Txs struct {
 	Code          uint32
 	Type          string
+	TxDataType    string
 	Time          string
 	BlockHeight   int64
 	TxHash        string
