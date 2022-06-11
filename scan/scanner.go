@@ -153,18 +153,17 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	var to string
 	var txType string
 
+	txType = msgEth.Type()
+
 	switch data.(type) {
 	case *evmtypes.AccessListTx:
-		txType = msgEth.Type()
 		//nothing
 	case *evmtypes.LegacyTx:
 		var legacyTx *evmtypes.LegacyTx
 		legacyTx = data.(*evmtypes.LegacyTx)
 		amountStr = legacyTx.Amount.String()
 		to = legacyTx.To
-		txType = "legacy_tx"
 	case *evmtypes.DynamicFeeTx:
-		txType = msgEth.Type()
 		amountStr = data.GetValue().String()
 		to = data.GetTo().String()
 	default:
