@@ -46,6 +46,8 @@ func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
 	var dst []byte
 	tmpData := make([]byte, block.BlockSize())
 
+	//This is the block size of the AES cipher in bytes. We could also have written size := cipher.BlockSize() here.
+	//The length of the input must be a multiple of 16 bytes.
 	for index := 0; index < len(crypted); index += block.BlockSize() {
 		block.Decrypt(tmpData, crypted[index:index+block.BlockSize()])
 		dst = append(dst, tmpData...)
