@@ -25,3 +25,17 @@ func TestECBEncrypt(t *testing.T) {
 	fmt.Println(result1)
 	assert.Equal(t, data, result1)
 }
+
+func TestGenerateKey(t *testing.T) {
+	token1, _ := GenerateRandomBytes(32)
+	token2, _ := GenerateRandomBytes(16)
+
+	key := encodeBase64(token1)
+	iv := encodeBase64(token2)
+
+	token3 := GenerateRandomString(16)
+
+	fmt.Println(key)
+	fmt.Println(iv)
+	fmt.Println(token3)
+}

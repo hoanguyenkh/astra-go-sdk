@@ -7,11 +7,8 @@ import (
 )
 
 func TestAce256(t *testing.T) {
-	key := "12345678901234567890123456789012"
-	iv := "1234567890123456"
-
-	key = "tF+EgPEnMsAGUunOWkNzIV8SzD3fYatlHrCndy1y4QY="
-	iv = "o5L+qPKtMjcgnFXyERHuoQ=="
+	key := "A3xNe7sEB9HixkmBhVrYaB0NhtHpHgAWeTnLZpTSxCI="
+	iv := "rNIIoAcpOUh/aZnrnRikRw=="
 
 	keyByte, _ := decodeBase64(key)
 	ivByte, _ := decodeBase64(iv)
