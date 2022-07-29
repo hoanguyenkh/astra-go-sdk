@@ -3,7 +3,6 @@ package common
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/hex"
 )
 
 func Ase256Encode(plaintext string, key string, iv string, blockSize int) string {
@@ -17,13 +16,13 @@ func Ase256Encode(plaintext string, key string, iv string, blockSize int) string
 	ciphertext := make([]byte, len(bPlaintext))
 	mode := cipher.NewCBCEncrypter(block, bIV)
 	mode.CryptBlocks(ciphertext, bPlaintext)
-	return hex.EncodeToString(ciphertext)
+	return encodeBase64(ciphertext)
 }
 
 func Ase256Decode(cipherText string, encKey string, iv string) (decryptedString string) {
 	bKey := []byte(encKey)
 	bIV := []byte(iv)
-	cipherTextDecoded, err := hex.DecodeString(cipherText)
+	cipherTextDecoded, err := decodeBase64(cipherText)
 	if err != nil {
 		panic(err)
 	}

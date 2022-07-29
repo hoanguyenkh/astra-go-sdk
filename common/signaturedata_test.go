@@ -25,9 +25,8 @@ func TestVerifySignature(t *testing.T) {
 }
 
 func TestGenKeyAndSignData(t *testing.T) {
-	privateKey, publickKey := GenPrivateKeySign()
-	fmt.Println("privateKey", privateKey)
-	fmt.Println("publickKey", publickKey)
+	privateKey := "c24de61f4915339130e97ec556c41d1d23c5a83a9f45340c45621ba4e5a60a99"
+	publickKey := "AxkzPiZ03U9HdKqmKPzQz3URzeZ2pFaPd/4HSuzh017n"
 
 	msg := "ECDSA is cool."
 	sign, err := SignatureData(privateKey, msg)
@@ -46,6 +45,12 @@ func TestGenKeyAndSignData(t *testing.T) {
 	fmt.Println(isValid)
 }
 
+func TestGenKey(t *testing.T) {
+	privateKey, publickKey := GenPrivateKeySign()
+	fmt.Println("privateKey", privateKey)
+	fmt.Println("publickKey", publickKey)
+}
+
 func TestImportPrivateKey(t *testing.T) {
 	privateKey := "1214c33e0ea1815464124ca3566aa406cc59f59d272b183ff33bd4cbea7d8dba"
 	key, err := crypto.HexToECDSA(privateKey)
@@ -54,13 +59,11 @@ func TestImportPrivateKey(t *testing.T) {
 	}
 
 	pubkey := elliptic.MarshalCompressed(crypto.S256(), key.X, key.Y)
-
 	privkey := make([]byte, 32)
 	blob := key.D.Bytes()
 	copy(privkey[32-len(blob):], blob)
 
 	privkeyStr := hex.EncodeToString(privkey)
-
 	pubkeyStr := base64.StdEncoding.EncodeToString(pubkey)
 
 	assert.Equal(t, privateKey, privkeyStr)

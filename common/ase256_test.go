@@ -16,7 +16,7 @@ func TestAce256(t *testing.T) {
 	key = string(keyByte)
 	iv = string(ivByte)
 
-	plaintext := "abcdefghijklmnopqrstuvwxyzABCDEF"
+	plaintext := "1214c33e0ea1815464124ca3566aa406cc59f59d272b183ff33bd4cbea7d8dba"
 
 	fmt.Println("Data to encode: ", plaintext)
 
