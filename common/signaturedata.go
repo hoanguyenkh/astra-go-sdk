@@ -14,10 +14,10 @@ import (
 	"math/big"
 )
 
-func GenPrivateKeySign() (string, string) {
+func GenPrivateKeySign() (string, string, error) {
 	key, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
 	if err != nil {
-		panic(err)
+		return "", "", err
 	}
 
 	pubkey := elliptic.MarshalCompressed(crypto.S256(), key.X, key.Y)
@@ -30,22 +30,22 @@ func GenPrivateKeySign() (string, string) {
 
 	pubkeyStr := base64.StdEncoding.EncodeToString(pubkey)
 
-	return privkeyStr, pubkeyStr
+	return privkeyStr, pubkeyStr, nil
 }
 
 func SignatureData(privateKey string, msg string) (string, error) {
 	privKey, err := crypto.HexToECDSA(privateKey)
+	if err != nil {
+		return "", err
+	}
 
 	hash := sha256.Sum256([]byte(msg))
 	sig, err := ecdsa.SignASN1(rand.Reader, privKey, hash[:])
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-
 	//signEncode := hex.EncodeToString(sig)
-
 	signEncode := base64.StdEncoding.EncodeToString(sig)
-
 	return signEncode, nil
 }
 

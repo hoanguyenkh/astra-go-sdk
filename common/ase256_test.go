@@ -20,7 +20,8 @@ func TestAce256(t *testing.T) {
 
 	fmt.Println("Data to encode: ", plaintext)
 
-	cipherText := fmt.Sprintf("%v", Ase256Encode(plaintext, key, iv, aes.BlockSize))
+	cipherText, _ := Ase256Encode(plaintext, key, iv, aes.BlockSize)
 	fmt.Println("Encode Result:\t", cipherText)
-	fmt.Println("Decode Result:\t", Ase256Decode(cipherText, key, iv))
+	rs, _ := Ase256Decode(cipherText, key, iv)
+	fmt.Println("Decode Result:\t", rs)
 }

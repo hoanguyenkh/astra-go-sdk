@@ -46,7 +46,7 @@ func TestGenKeyAndSignData(t *testing.T) {
 }
 
 func TestGenKey(t *testing.T) {
-	privateKey, publickKey := GenPrivateKeySign()
+	privateKey, publickKey, _ := GenPrivateKeySign()
 	fmt.Println("privateKey", privateKey)
 	fmt.Println("publickKey", publickKey)
 }

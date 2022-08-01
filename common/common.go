@@ -55,7 +55,7 @@ func TxBuilderJsonDecoder(txConfig client.TxConfig, txJSON string) ([]byte, erro
 	//convert to []byte
 	txBytes, err := txConfig.TxEncoder()(tx)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return txBytes, nil
