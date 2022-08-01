@@ -6,6 +6,7 @@ import (
 )
 
 func GenerateRandomBytes(n int) ([]byte, error) {
+	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, n)
 	_, err := rand.Read(b)
 	// Note that err == nil only if we read len(b) bytes.

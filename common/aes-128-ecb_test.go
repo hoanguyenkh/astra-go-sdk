@@ -27,15 +27,17 @@ func TestECBEncrypt(t *testing.T) {
 }
 
 func TestGenerateKey(t *testing.T) {
-	token1, _ := GenerateRandomBytes(32)
+	token1, _ := GenerateRandomBytes(24)
 	token2, _ := GenerateRandomBytes(16)
 
 	key := encodeBase64(token1)
 	iv := encodeBase64(token2)
 
 	token3 := GenerateRandomString(16)
-
 	fmt.Println(key)
 	fmt.Println(iv)
 	fmt.Println(token3)
+
+	token4, _ := GenerateSecretKeyRandomString(16)
+	fmt.Println(token4)
 }
