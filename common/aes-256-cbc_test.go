@@ -3,6 +3,7 @@ package common
 import (
 	"crypto/aes"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -24,4 +25,6 @@ func TestAce256(t *testing.T) {
 	fmt.Println("Encode Result:\t", cipherText)
 	rs, _ := CBCDecrypt(cipherText, key, iv)
 	fmt.Println("Decode Result:\t", rs)
+
+	assert.Equal(t, plaintext, rs)
 }

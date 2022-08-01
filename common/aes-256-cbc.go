@@ -34,5 +34,11 @@ func CBCDecrypt(cipherText string, encKey string, iv string) (string, error) {
 
 	mode := cipher.NewCBCDecrypter(block, bIV)
 	mode.CryptBlocks([]byte(cipherTextDecoded), []byte(cipherTextDecoded))
-	return string(cipherTextDecoded), nil
+
+	dst, err := PKCS5UnPadding(cipherTextDecoded)
+	if err != nil {
+		return "", err
+	}
+
+	return string(dst), nil
 }
