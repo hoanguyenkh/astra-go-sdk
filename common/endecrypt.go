@@ -135,6 +135,15 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 	return b, nil
 }
 
+func GenerateSecretKeyRandomString(n int) (string, error) {
+	key, err := GenerateRandomBytes(n)
+	if err != nil {
+		return "", err
+	}
+
+	return encodeBase64(key), nil
+}
+
 func GenerateRandomString(length int) string {
 	rand.Seed(time.Now().UnixNano())
 
