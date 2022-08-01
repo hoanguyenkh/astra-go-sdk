@@ -5,8 +5,6 @@ import (
 	"crypto/aes"
 	"encoding/base64"
 	"fmt"
-	"math/rand"
-	"time"
 )
 
 func encodeBase64(b []byte) string {
@@ -21,7 +19,6 @@ func decodeBase64(s string) ([]byte, error) {
 	return data, nil
 }
 
-//ECC mode decryption
 func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
 	crypted, err := decodeBase64(cryptedStr)
 	if err != nil {
@@ -63,7 +60,6 @@ func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
 	return string(dst[:]), nil
 }
 
-//ECC mode encryption
 func ECBEncrypt(src, key []byte) (string, error) {
 	if !validKey(key) {
 		return "", fmt.Errorf("the length of the secret key is wrong, the current incoming length is %d", len(key))
@@ -95,14 +91,12 @@ func ECBEncrypt(src, key []byte) (string, error) {
 	return encodeB64, nil
 }
 
-//Pkcs5 filling
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
-//Remove pkcs5 filling
 func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	length := len(origData)
 	unpadding := int(origData[length-1])
@@ -113,7 +107,6 @@ func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	return origData[:(length - unpadding)], nil
 }
 
-//Key length verification
 func validKey(key []byte) bool {
 	k := len(key)
 	switch k {
@@ -122,48 +115,4 @@ func validKey(key []byte) bool {
 	case 16, 24, 32:
 		return true
 	}
-}
-
-func GenerateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	// Note that err == nil only if we read len(b) bytes.
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
-
-func GenerateSecretKeyRandomString(n int) (string, error) {
-	key, err := GenerateRandomBytes(n)
-	if err != nil {
-		return "", err
-	}
-
-	return encodeBase64(key), nil
-}
-
-func GenerateRandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-
-	digits := "0123456789"
-	specials := "!@#$%&*+_-="
-	letters := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + digits + specials
-
-	buf := make([]byte, length)
-
-	buf[0] = digits[rand.Intn(len(digits))]
-	buf[1] = specials[rand.Intn(len(specials))]
-	for i := 2; i < length; i++ {
-		buf[i] = letters[rand.Intn(len(letters))]
-	}
-
-	rand.Shuffle(len(buf), func(i, j int) {
-		buf[i], buf[j] = buf[j], buf[i]
-	})
-
-	str := string(buf)
-
-	return str
 }

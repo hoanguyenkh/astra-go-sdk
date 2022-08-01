@@ -5,7 +5,7 @@ import (
 	"crypto/cipher"
 )
 
-func Ase256Encode(plaintext string, key string, iv string, blockSize int) (string, error) {
+func CBCEncrypt(plaintext string, key string, iv string, blockSize int) (string, error) {
 	bKey := []byte(key)
 	bIV := []byte(iv)
 	bPlaintext := PKCS5Padding([]byte(plaintext), blockSize)
@@ -19,7 +19,7 @@ func Ase256Encode(plaintext string, key string, iv string, blockSize int) (strin
 	return encodeBase64(ciphertext), nil
 }
 
-func Ase256Decode(cipherText string, encKey string, iv string) (string, error) {
+func CBCDecrypt(cipherText string, encKey string, iv string) (string, error) {
 	bKey := []byte(encKey)
 	bIV := []byte(iv)
 	cipherTextDecoded, err := decodeBase64(cipherText)

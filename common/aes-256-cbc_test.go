@@ -20,8 +20,8 @@ func TestAce256(t *testing.T) {
 
 	fmt.Println("Data to encode: ", plaintext)
 
-	cipherText, _ := Ase256Encode(plaintext, key, iv, aes.BlockSize)
+	cipherText, _ := CBCEncrypt(plaintext, key, iv, aes.BlockSize)
 	fmt.Println("Encode Result:\t", cipherText)
-	rs, _ := Ase256Decode(cipherText, key, iv)
+	rs, _ := CBCDecrypt(cipherText, key, iv)
 	fmt.Println("Decode Result:\t", rs)
 }
