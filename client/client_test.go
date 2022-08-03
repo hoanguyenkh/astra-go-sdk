@@ -8,6 +8,7 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -128,6 +129,8 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 
 	txHash := common.TxHash(txByte)
 	fmt.Println("txHash", txHash)
+
+	fmt.Println(ethCommon.BytesToHash(txByte).String())
 
 	res, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
 	if err != nil {
@@ -367,4 +370,25 @@ func (suite *AstraSdkTestSuite) TestScanner() {
 
 	fmt.Println(string(rs))
 
+}
+
+func (suite *AstraSdkTestSuite) TestSequenceNumberFromPk() {
+	mulSignAccPubKey := "{\"@type\":\"/cosmos.crypto.multisig.LegacyAminoPubKey\",\"threshold\":2,\"public_keys\":[{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0UjEVXxXA7JY2oou5HPH7FuPSyJ2hAfDMc4XThXiopM\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A6DFr74kQmk/k88fCTPCxmf9kyFJMhFUF21IPFY7XoV2\"},{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"AgPQELGzKmlAaSb01OKbmuL1f17MHJshkh9s9xAWxMa3\"}]}"
+
+	walletMultiPub, err := common.DecodePublicKey(suite.Client.RpcClient(), mulSignAccPubKey)
+	if err != nil {
+		panic(err)
+	}
+
+	masterHexAddr := ethCommon.BytesToAddress(walletMultiPub.Address().Bytes())
+	fmt.Println(masterHexAddr)
+
+	bankClient := suite.Client.NewBankClient()
+	accNum, accSeq, err := bankClient.AccountRetriever(masterHexAddr.String())
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(accNum)
+	fmt.Println(accSeq)
 }
