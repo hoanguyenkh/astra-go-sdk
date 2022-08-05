@@ -130,7 +130,7 @@ func (b *Bank) SignTxWithSignerAddress(param *SignTxWithSignerAddressRequest) (c
 		return nil, errors.Wrap(err, "ImportAccount")
 	}
 
-	from := types.AccAddress(param.MulSignAccPublicKey.Address())
+	from := types.AccAddress(param.SignerPublicKey.Address())
 	receiver, err := types.AccAddressFromBech32(param.Receiver)
 	if err != nil {
 		return nil, errors.Wrap(err, "AccAddressFromBech32")
@@ -150,7 +150,7 @@ func (b *Bank) SignTxWithSignerAddress(param *SignTxWithSignerAddressRequest) (c
 		return nil, errors.Wrap(err, "BuildUnsignedTx")
 	}
 
-	err = newTx.SignTxWithSignerAddress(txBuilder, param.MulSignAccPublicKey)
+	err = newTx.SignTxWithSignerAddress(txBuilder, param.SignerPublicKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "SignTxWithSignerAddress")
 	}

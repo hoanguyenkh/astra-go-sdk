@@ -6,6 +6,7 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/common"
 	"github.com/AstraProtocol/astra-go-sdk/config"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	ethCommon "github.com/ethereum/go-ethereum/common"
@@ -16,6 +17,7 @@ import (
 	"math"
 	"math/big"
 	"os"
+	"sync"
 	"testing"
 )
 
@@ -141,40 +143,44 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 }
 
 func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
+	//main address
 	/*
-		    addr astra1ha0vgh05zzlwdeejxq9aq7gqr6jzs7stdhlfra
-			pucKey {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml"}]}
-			list key
-			index 0
-			{
-			 "address": "astra1dmdsy082730stdletm7z6zulfxuez4lsx3tztx",
-			 "hexAddress": "0x6Edb023ceAF45F05b7f95efC2d0B9f49B99157F0",
-			 "mnemonic": "ignore risk morning strike school street radar silk recipe health december system inflict gold foster item end twenty magic shine oppose island loop impact",
-			 "privateKey": "7f1d3df4044f09b1edfab34c7e3fee92396ea23861e96a8ac7429efcf158d794",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89\"}",
-			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper1dmdsy082730stdletm7z6zulfxuez4lsrg2nsg"
-			} <nil>
-			index 1
-			{
-			 "address": "astra1fd39nlc4hsl7ma9knpjwlhcrnunz66dnvf5agx",
-			 "hexAddress": "0x4b6259ff15Bc3FEdf4B69864EfdF039F262d69B3",
-			 "mnemonic": "seven mean snap illness couch excite item topic tobacco erosion tourist blue van possible wolf gadget combine excess brush goddess glory subway few mind",
-			 "privateKey": "8dca20a27b0bfdcf1dacc9b2f71d4b7e7d269a4b87949707c12ef2ba328fd0e9",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn\"}",
-			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper1fd39nlc4hsl7ma9knpjwlhcrnunz66dnfs4vng"
-			} <nil>
-			index 2
-			{
-			 "address": "astra1gc0v03kjrg9uv7duvzqsndv3nhkhehvkwuhkdr",
-			 "hexAddress": "0x461EC7C6D21a0BC679bC608109b5919DEd7Cdd96",
-			 "mnemonic": "swap exhaust letter left light trust diet piano pride rifle trust orbit clip suggest achieve unaware please guess lawsuit doctor use bargain jealous weekend",
-			 "privateKey": "e3f46776e933129611b3cb6418176dcd2a9badd8188fb4804d5b822548200bac",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml\"}",
-			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper1gc0v03kjrg9uv7duvzqsndv3nhkhehvkt9k8kd"
-			}
+		addr astra1ha0vgh05zzlwdeejxq9aq7gqr6jzs7stdhlfra
+		pucKey {"@type":"/cosmos.crypto.multisig.LegacyAminoPubKey","threshold":2,"public_keys":[{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn"},{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml"}]}
+	*/
+
+	//child address
+	/*
+		index 0
+		{
+		 "address": "astra1dmdsy082730stdletm7z6zulfxuez4lsx3tztx",
+		 "hexAddress": "0x6Edb023ceAF45F05b7f95efC2d0B9f49B99157F0",
+		 "mnemonic": "ignore risk morning strike school street radar silk recipe health december system inflict gold foster item end twenty magic shine oppose island loop impact",
+		 "privateKey": "7f1d3df4044f09b1edfab34c7e3fee92396ea23861e96a8ac7429efcf158d794",
+		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ATAOfWQM6XXCA5po9DBsKVGmWudnIN55arHhDYhR89\"}",
+		 "type": "eth_secp256k1",
+		 "validatorKey": "astravaloper1dmdsy082730stdletm7z6zulfxuez4lsrg2nsg"
+		} <nil>
+		index 1
+		{
+		 "address": "astra1fd39nlc4hsl7ma9knpjwlhcrnunz66dnvf5agx",
+		 "hexAddress": "0x4b6259ff15Bc3FEdf4B69864EfdF039F262d69B3",
+		 "mnemonic": "seven mean snap illness couch excite item topic tobacco erosion tourist blue van possible wolf gadget combine excess brush goddess glory subway few mind",
+		 "privateKey": "8dca20a27b0bfdcf1dacc9b2f71d4b7e7d269a4b87949707c12ef2ba328fd0e9",
+		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A0ks8ww7AVKYQRsKgZSQi9wTfoQzKNt30gLOMpOJNSPn\"}",
+		 "type": "eth_secp256k1",
+		 "validatorKey": "astravaloper1fd39nlc4hsl7ma9knpjwlhcrnunz66dnfs4vng"
+		} <nil>
+		index 2
+		{
+		 "address": "astra1gc0v03kjrg9uv7duvzqsndv3nhkhehvkwuhkdr",
+		 "hexAddress": "0x461EC7C6D21a0BC679bC608109b5919DEd7Cdd96",
+		 "mnemonic": "swap exhaust letter left light trust diet piano pride rifle trust orbit clip suggest achieve unaware please guess lawsuit doctor use bargain jealous weekend",
+		 "privateKey": "e3f46776e933129611b3cb6418176dcd2a9badd8188fb4804d5b822548200bac",
+		 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A9Q4nSS73SG+Tclghh1JEtfng5vd41dgmG7HJrYW4/Ml\"}",
+		 "type": "eth_secp256k1",
+		 "validatorKey": "astravaloper1gc0v03kjrg9uv7duvzqsndv3nhkhehvkt9k8kd"
+		}
 	*/
 
 	pk, err := common.DecodePublicKey(
@@ -190,84 +196,109 @@ func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 
 	bankClient := suite.Client.NewBankClient()
 
-	amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
-	fmt.Println("amount", amount.String())
-
 	listPrivate := []string{
 		"ignore risk morning strike school street radar silk recipe health december system inflict gold foster item end twenty magic shine oppose island loop impact",
 		"seven mean snap illness couch excite item topic tobacco erosion tourist blue van possible wolf gadget combine excess brush goddess glory subway few mind",
 	}
 
-	signList := make([][]signingTypes.SignatureV2, 0)
-	for i, s := range listPrivate {
-		fmt.Println("index", i)
-		request := &bank.SignTxWithSignerAddressRequest{
-			SignerPrivateKey:    s,
+	thread := 2
+	listRawdata := make([][]byte, 0)
+
+	for i := 0; i < thread; i++ {
+		amount := big.NewInt(0).Mul(big.NewInt(10+int64(i)), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
+		fmt.Println("amount", amount.String())
+
+		fmt.Println("start signer")
+		signList := make([][]signingTypes.SignatureV2, 0)
+		for i, s := range listPrivate {
+			fmt.Println("index", i)
+			request := &bank.SignTxWithSignerAddressRequest{
+				SignerPrivateKey: s,
+				SignerPublicKey:  pk,
+				Receiver:         "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
+				Amount:           amount,
+				GasLimit:         200000,
+				GasPrice:         "0.001aastra",
+			}
+
+			txBuilder, err := bankClient.SignTxWithSignerAddress(request)
+			if err != nil {
+				panic(err)
+			}
+
+			sign, err := common.TxBuilderSignatureJsonEncoder(suite.Client.rpcClient.TxConfig, txBuilder)
+			if err != nil {
+				panic(err)
+			}
+
+			fmt.Println("sign-data", string(sign))
+
+			signByte, err := common.TxBuilderSignatureJsonDecoder(suite.Client.rpcClient.TxConfig, sign)
+			if err != nil {
+				panic(err)
+			}
+
+			signList = append(signList, signByte)
+		}
+
+		fmt.Println("start transfer")
+		//200
+		request := &bank.TransferMultiSignRequest{
 			MulSignAccPublicKey: pk,
 			Receiver:            "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
 			Amount:              amount,
 			GasLimit:            200000,
 			GasPrice:            "0.001aastra",
+			Sigs:                signList,
 		}
 
-		txBuilder, err := bankClient.SignTxWithSignerAddress(request)
+		txBuilder, err := bankClient.TransferMultiSignRawData(request)
 		if err != nil {
 			panic(err)
 		}
 
-		sign, err := common.TxBuilderSignatureJsonEncoder(suite.Client.rpcClient.TxConfig, txBuilder)
+		txJson, err := common.TxBuilderJsonEncoder(suite.Client.rpcClient.TxConfig, txBuilder)
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println("sign-data", string(sign))
+		fmt.Println("rawData", string(txJson))
 
-		signByte, err := common.TxBuilderSignatureJsonDecoder(suite.Client.rpcClient.TxConfig, sign)
+		txByte, err := common.TxBuilderJsonDecoder(suite.Client.rpcClient.TxConfig, txJson)
 		if err != nil {
 			panic(err)
 		}
 
-		signList = append(signList, signByte)
+		txHash := common.TxHash(txByte)
+		fmt.Println("txHash", txHash)
+
+		listRawdata = append(listRawdata, txByte)
 	}
 
-	fmt.Println("start transfer")
+	var wg sync.WaitGroup
+	wg.Add(thread)
 
-	//200
-	request := &bank.TransferMultiSignRequest{
-		MulSignAccPublicKey: pk,
-		Receiver:            "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
-		Amount:              amount,
-		GasLimit:            200000,
-		GasPrice:            "0.001aastra",
-		Sigs:                signList,
-	}
+	go func(item []byte, client client.Context) {
+		_, err := client.BroadcastTxCommit(item)
+		if err != nil {
+			panic(err)
+		}
 
-	txBuilder, err := bankClient.TransferMultiSignRawData(request)
-	if err != nil {
-		panic(err)
-	}
+		//fmt.Println("BroadcastTxCommit", res)
+		defer wg.Done()
+	}(listRawdata[0], suite.Client.rpcClient)
 
-	txJson, err := common.TxBuilderJsonEncoder(suite.Client.rpcClient.TxConfig, txBuilder)
-	if err != nil {
-		panic(err)
-	}
+	go func(item []byte, client client.Context) {
+		_, err := client.BroadcastTxCommit(item)
+		if err != nil {
+			panic(err)
+		}
 
-	fmt.Println("rawData", string(txJson))
+		//fmt.Println("BroadcastTxCommit", res)
+		defer wg.Done()
+	}(listRawdata[1], suite.Client.rpcClient)
 
-	txByte, err := common.TxBuilderJsonDecoder(suite.Client.rpcClient.TxConfig, txJson)
-	if err != nil {
-		panic(err)
-	}
-
-	txHash := common.TxHash(txByte)
-	fmt.Println("txHash", txHash)
-
-	res, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(res)
+	wg.Wait()
 }
 
 func (suite *AstraSdkTestSuite) TestAddressValid() {
