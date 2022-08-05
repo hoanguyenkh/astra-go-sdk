@@ -105,7 +105,7 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 	fmt.Println("amount", amount.String())
 
 	request := &bank.TransferRequest{
-		PrivateKey: "saddle click spawn install mutual visa usage eyebrow awesome inherit rifle moon giraffe deposit reduce east gossip ice salute hill fire require knife traffic",
+		PrivateKey: "valve season sauce knife burden benefit zone field ask carpet fury vital action donate trade street ability artwork ball uniform garbage sugar warm differ",
 		Receiver:   "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
 		Amount:     amount,
 		GasLimit:   200000,
