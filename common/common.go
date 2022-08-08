@@ -116,10 +116,10 @@ func CosmosAddressToEthAddress(cosmosAddress string) (string, error) {
 
 func IsBlocked(code uint32) bool {
 	if code == CodeTypeOK {
-		return true
+		return false
 	}
 
-	return false
+	return true
 }
 
 func VerifyHdPath(hdPath string) (bool, error) {

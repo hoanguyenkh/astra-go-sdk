@@ -87,18 +87,6 @@ func (suite *AstraSdkTestSuite) TestGenMulSignAccount() {
 }
 
 func (suite *AstraSdkTestSuite) TestTransfer() {
-	/*
-		{
-			 "address": "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
-			 "hexAddress": "0xa69b7d1487944b924f99ACBb71e4488a868F9f38",
-			 "mnemonic": "strike enhance tray always bulb pioneer message hair swim alone soda possible print vivid delay winner guilt test skirt liar slab fog balance fence",
-			 "privateKey": "5efa3b891b24832c185f3133f4eb978345d3f1563346ff26465dac8f1832dcc1",
-			 "publicKey": "{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"Ag/YFj8pCpDgLkz+B4D2IrRplrqZHyCf4oDy5As9AFbI\"}",
-			 "type": "eth_secp256k1",
-			 "validatorKey": "astravaloper156dh69y8j39eynue4jahrezg32rgl8ecndzxt3"
-			}
-	*/
-
 	bankClient := suite.Client.NewBankClient()
 
 	amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
@@ -106,7 +94,7 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 
 	request := &bank.TransferRequest{
 		PrivateKey: "valve season sauce knife burden benefit zone field ask carpet fury vital action donate trade street ability artwork ball uniform garbage sugar warm differ",
-		Receiver:   "astra156dh69y8j39eynue4jahrezg32rgl8eck5rhsl",
+		Receiver:   "astra1p6sscujfpygmrrxqlwqeqqw6r5lxk2x9gz9glh",
 		Amount:     amount,
 		GasLimit:   200000,
 		GasPrice:   "0.001aastra",
@@ -331,11 +319,13 @@ func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
 
 func (suite *AstraSdkTestSuite) TestCheckTx() {
 	bankClient := suite.Client.NewBankClient()
-	rs, err := bankClient.CheckTx("B593ED27B335EAB7DC664C39B56D0BBE36A4977F25B66FAD75503F5EECE21321")
+	//rs, err := bankClient.CheckTx("646F944DCDB201F674C109E6EF9A594ADBCC33B8F0FA054D7B3F4ABE4CCA2AEB")
+	rs, err := bankClient.CheckTx("620E74B4D661148CC81EC70BBD29F605274AE033D605B4C45E9B0D799DE740BE")
 	if err != nil {
 		panic(err)
 	}
 
+	fmt.Println(rs.Code)
 	if rs != nil && common.IsBlocked(rs.Code) {
 		fmt.Println("blocked")
 	}
@@ -391,7 +381,7 @@ func (suite *AstraSdkTestSuite) TestScanner() {
 	client := suite.Client.NewScanner()
 	//listTx, err := client.ScanByBlockHeight("468754") //eth
 	//listTx, err := client.ScanByBlockHeight(450666) //cosmos
-	listTx, err := client.ScanByBlockHeight(516272) //legacy
+	listTx, err := client.ScanByBlockHeight(596365) //legacy
 
 	if err != nil {
 		panic(err)

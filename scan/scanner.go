@@ -94,7 +94,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "TxJSONEncoder")
 		}
-
+		
 		ts := blockTime.Format(layout)
 
 		txs := &Txs{
