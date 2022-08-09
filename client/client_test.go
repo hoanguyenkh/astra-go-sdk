@@ -326,7 +326,7 @@ func (suite *AstraSdkTestSuite) TestCheckTx() {
 	}
 
 	fmt.Println(rs.Code)
-	if rs != nil && common.IsBlocked(rs.Code) {
+	if rs != nil && common.BlockedStatus(rs.Code) {
 		fmt.Println("blocked")
 	}
 }

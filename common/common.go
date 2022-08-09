@@ -114,12 +114,12 @@ func CosmosAddressToEthAddress(cosmosAddress string) (string, error) {
 	return ethAddress.String(), nil
 }
 
-func IsBlocked(code uint32) bool {
+func BlockedStatus(code uint32) bool {
 	if code == CodeTypeOK {
-		return false
+		return true
 	}
 
-	return true
+	return false
 }
 
 func VerifyHdPath(hdPath string) (bool, error) {
