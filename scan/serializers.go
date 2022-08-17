@@ -2,6 +2,7 @@ package scan
 
 type Txs struct {
 	Code          uint32
+	IsOk          bool
 	Type          string
 	TxDataType    string
 	Time          string

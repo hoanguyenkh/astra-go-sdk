@@ -75,16 +75,16 @@ func (b *Scanner) ScanViaWebsocket() {
 func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	lisTx := make([]*Txs, 0)
 
-	output, err := b.getBlock(&height)
+	blockInfo, blockResults, err := b.getBlock(&height)
 	if err != nil {
 		return nil, errors.Wrap(err, "getBlock")
 	}
 
-	blkHeight := output.Block.Height
-	blockTime := output.Block.Time
+	blkHeight := blockInfo.Block.Height
+	blockTime := blockInfo.Block.Time
 	layout := "2006-01-02T15:04:05.000Z"
 
-	for _, rawData := range output.Block.Txs {
+	for i, rawData := range blockInfo.Block.Txs {
 		tx, err := b.rpcClient.TxConfig.TxDecoder()(rawData)
 		if err != nil {
 			return nil, errors.Wrap(err, "TxDecoder")
@@ -94,11 +94,9 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "TxJSONEncoder")
 		}
-		
-		ts := blockTime.Format(layout)
 
+		ts := blockTime.Format(layout)
 		txs := &Txs{
-			//Code        uint32
 			Time:        ts,
 			BlockHeight: blkHeight,
 			TxHash:      fmt.Sprintf("%X", rawData.Hash()),
@@ -106,9 +104,14 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 		}
 
 		msg := tx.GetMsgs()[0]
+
 		msgEth, ok := msg.(*evmtypes.MsgEthereumTx)
 		if ok {
-			err := b.getEthMsg(txs, msgEth)
+			txResult := blockResults.TxsResults[i]
+			txs.Code = txResult.Code
+			txs.IsOk = txResult.IsOK()
+
+			err := b.getEthMsg(txs, msgEth, txResult.Data)
 			if err != nil {
 				return nil, errors.Wrap(err, "getEthMsg")
 			}
@@ -128,10 +131,15 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	return lisTx, nil
 }
 
-func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
+func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx, txData []byte) error {
 	data, err := evmtypes.UnpackTxData(msgEth.Data)
 	if err != nil {
 		return errors.Wrap(err, "UnpackTxData")
+	}
+
+	txResponse, err := evmtypes.DecodeTxResponse(txData)
+	if txResponse.Hash != msgEth.Hash {
+		return errors.New("Tx hash not mapping")
 	}
 
 	var txDataType string
@@ -195,35 +203,37 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	return nil
 }
 
-func (b *Scanner) getBankSendMsg(txs *Txs, msgEth *banktypes.MsgSend) error {
+func (b *Scanner) getBankSendMsg(txs *Txs, msgSend *banktypes.MsgSend) error {
 	//txs.EthTxHash = msgEth.Hash
-	txs.Type = msgEth.Type()
-	ethSender, err := common.CosmosAddressToEthAddress(msgEth.FromAddress)
+
+	txs.TxDataType = "cosmos"
+	txs.Type = msgSend.Type()
+	ethSender, err := common.CosmosAddressToEthAddress(msgSend.FromAddress)
 	if err != nil {
 		return errors.Wrap(err, "CosmosAddressToEthAddress")
 	}
 
-	txs.Sender = msgEth.FromAddress
+	txs.Sender = msgSend.FromAddress
 	txs.EthSender = ethSender
 
-	receiver, err := common.CosmosAddressToEthAddress(msgEth.ToAddress)
+	receiver, err := common.CosmosAddressToEthAddress(msgSend.ToAddress)
 	if err != nil {
 		return errors.Wrap(err, "CosmosAddressToEthAddress")
 	}
 
-	txs.Receiver = msgEth.ToAddress
+	txs.Receiver = msgSend.ToAddress
 	txs.EthReceiver = receiver
 
-	txs.Amount = msgEth.Amount[0].Amount.String()
+	txs.Amount = msgSend.Amount[0].Amount.String()
 
-	amount, ok := big.NewInt(0).SetString(msgEth.Amount[0].Amount.String(), 10)
+	amount, ok := big.NewInt(0).SetString(msgSend.Amount[0].Amount.String(), 10)
 	if !ok {
 		return errors.New("Parser amount invalid")
 	}
 
 	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
 
-	txs.TokenSymbol = msgEth.Amount[0].Denom
+	txs.TokenSymbol = msgSend.Amount[0].Denom
 
 	return nil
 }
@@ -242,19 +252,24 @@ func (b *Scanner) getBlockResults(height *int64) (*ctypes.ResultBlockResults, er
 	return res, nil
 }
 
-func (b *Scanner) getBlock(height *int64) (*ctypes.ResultBlock, error) {
+func (b *Scanner) getBlock(height *int64) (*ctypes.ResultBlock, *ctypes.ResultBlockResults, error) {
 	// get the node
 	node, err := b.rpcClient.GetNode()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	res, err := node.Block(context.Background(), height)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return res, nil
+	res1, err := node.BlockResults(context.Background(), height)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return res, res1, nil
 }
 
 // get the current blockchain height

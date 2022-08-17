@@ -320,7 +320,7 @@ func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
 func (suite *AstraSdkTestSuite) TestCheckTx() {
 	bankClient := suite.Client.NewBankClient()
 	//rs, err := bankClient.CheckTx("646F944DCDB201F674C109E6EF9A594ADBCC33B8F0FA054D7B3F4ABE4CCA2AEB")
-	rs, err := bankClient.CheckTx("620E74B4D661148CC81EC70BBD29F605274AE033D605B4C45E9B0D799DE740BE")
+	rs, err := bankClient.CheckTx("25D2704C3ABDFE3DBBC1A8202A15D43A2E86D7F1F24AD2E704A7F50FCB75FB94")
 	if err != nil {
 		panic(err)
 	}
@@ -379,9 +379,9 @@ func (suite *AstraSdkTestSuite) TestImportByPrivatekey() {
 
 func (suite *AstraSdkTestSuite) TestScanner() {
 	client := suite.Client.NewScanner()
-	//listTx, err := client.ScanByBlockHeight("468754") //eth
-	//listTx, err := client.ScanByBlockHeight(450666) //cosmos
-	listTx, err := client.ScanByBlockHeight(596365) //legacy
+	listTx, err := client.ScanByBlockHeight(1032719) //cosmos
+	//listTx, err := client.ScanByBlockHeight(450666) //eth
+	//listTx, err := client.ScanByBlockHeight(596365) //error
 
 	if err != nil {
 		panic(err)
