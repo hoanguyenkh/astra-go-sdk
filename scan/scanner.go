@@ -86,7 +86,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	blockTime := blockInfo.Block.Time
 	layout := "2006-01-02T15:04:05.000Z"
 
-	fmt.Printf("start check block = %v", height)
+	fmt.Printf("start check block = %v\n", height)
 	for i, rawData := range blockInfo.Block.Txs {
 		tx, err := b.rpcClient.TxConfig.TxDecoder()(rawData)
 		if err != nil {
