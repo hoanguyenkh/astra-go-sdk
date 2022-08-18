@@ -34,7 +34,7 @@ func (b *Scanner) ScanViaWebsocket() {
 	}
 	defer subscription.Stop()
 
-	queryStr := fmt.Sprintf("tm.event='NewBlock' AND block.height='450816'")
+	queryStr := fmt.Sprintf("tm.event='NewBlock' AND block.height='1038312'")
 	fmt.Println(queryStr)
 	blockHeadersSub, err := subscription.Subscribe(
 		ctx,
@@ -77,7 +77,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 
 	lisTx := make([]*Txs, 0)
 
-	blockInfo, blockResults, err := b.getBlock(&height)
+	blockInfo, _, err := b.getBlock(&height)
 	if err != nil {
 		return nil, errors.Wrap(err, "getBlock")
 	}
@@ -86,8 +86,8 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	blockTime := blockInfo.Block.Time
 	layout := "2006-01-02T15:04:05.000Z"
 
-	fmt.Printf("scan block = %v\n", height)
-	for i, rawData := range blockInfo.Block.Txs {
+	fmt.Printf("scan block = %v total = %v\n", height, len(blockInfo.Block.Txs))
+	for _, rawData := range blockInfo.Block.Txs {
 		tx, err := b.rpcClient.TxConfig.TxDecoder()(rawData)
 		if err != nil {
 			return nil, errors.Wrap(err, "TxDecoder")
@@ -98,16 +98,16 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 			return nil, errors.Wrap(err, "TxJSONEncoder")
 		}
 
-		txResult := blockResults.TxsResults[i]
+		/*txResult := blockResults.TxsResults[i]
 		if !txResult.IsOK() {
 			fmt.Printf("Tx = %X at block = %v is failed\n", rawData.Hash(), height)
 			continue
-		}
+		}*/
 
 		ts := blockTime.Format(layout)
 		txs := &Txs{
-			Code:        txResult.Code,
-			IsOk:        txResult.IsOK(),
+			//Code:        txResult.Code,
+			//IsOk:        txResult.IsOK(),
 			Time:        ts,
 			BlockHeight: blkHeight,
 			TxHash:      fmt.Sprintf("%X", rawData.Hash()),
@@ -267,12 +267,12 @@ func (b *Scanner) getBlock(height *int64) (*ctypes.ResultBlock, *ctypes.ResultBl
 		return nil, nil, err
 	}
 
-	res1, err := node.BlockResults(context.Background(), height)
+	/*res1, err := node.BlockResults(context.Background(), height)
 	if err != nil {
 		return nil, nil, err
-	}
+	}*/
 
-	return res, res1, nil
+	return res, nil, nil
 }
 
 // get the current blockchain height
