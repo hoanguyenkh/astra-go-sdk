@@ -135,7 +135,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 		lisTx = append(lisTx, txs)
 	}
 
-	fmt.Printf("end check block = %v, end = %v\n", height, time.Since(startTime).String())
+	fmt.Printf("end check block = %v in = %v\n", height, time.Since(startTime).String())
 	return lisTx, nil
 }
 
