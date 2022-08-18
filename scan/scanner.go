@@ -98,8 +98,16 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 			return nil, errors.Wrap(err, "TxJSONEncoder")
 		}
 
+		txResult := blockResults.TxsResults[i]
+		if !txResult.IsOK() {
+			fmt.Printf("Tx = %X at block = %v is failed\n", rawData.Hash(), height)
+			continue
+		}
+
 		ts := blockTime.Format(layout)
 		txs := &Txs{
+			Code:        txResult.Code,
+			IsOk:        txResult.IsOK(),
 			Time:        ts,
 			BlockHeight: blkHeight,
 			TxHash:      fmt.Sprintf("%X", rawData.Hash()),
@@ -110,11 +118,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 
 		msgEth, ok := msg.(*evmtypes.MsgEthereumTx)
 		if ok {
-			txResult := blockResults.TxsResults[i]
-			txs.Code = txResult.Code
-			txs.IsOk = txResult.IsOK()
-
-			err := b.getEthMsg(txs, msgEth, txResult.Data)
+			err := b.getEthMsg(txs, msgEth)
 			if err != nil {
 				return nil, errors.Wrap(err, "getEthMsg")
 			}
@@ -135,15 +139,10 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	return lisTx, nil
 }
 
-func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx, txData []byte) error {
+func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
 	data, err := evmtypes.UnpackTxData(msgEth.Data)
 	if err != nil {
 		return errors.Wrap(err, "UnpackTxData")
-	}
-
-	txResponse, err := evmtypes.DecodeTxResponse(txData)
-	if txResponse.Hash != msgEth.Hash {
-		return errors.New(fmt.Sprintf("Tx hash not mapping %v != %v", txResponse.Hash, msgEth.Hash))
 	}
 
 	var txDataType string
