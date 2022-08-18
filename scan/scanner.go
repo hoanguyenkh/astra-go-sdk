@@ -73,6 +73,8 @@ func (b *Scanner) ScanViaWebsocket() {
 }
 
 func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
+	startTime := time.Now()
+
 	lisTx := make([]*Txs, 0)
 
 	blockInfo, blockResults, err := b.getBlock(&height)
@@ -84,6 +86,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 	blockTime := blockInfo.Block.Time
 	layout := "2006-01-02T15:04:05.000Z"
 
+	fmt.Printf("start check block = %v, start = %v\n", height, startTime.String())
 	for i, rawData := range blockInfo.Block.Txs {
 		tx, err := b.rpcClient.TxConfig.TxDecoder()(rawData)
 		if err != nil {
@@ -128,6 +131,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 		lisTx = append(lisTx, txs)
 	}
 
+	fmt.Printf("end check block = %v, end = %v\n", height, time.Since(startTime).String())
 	return lisTx, nil
 }
 
