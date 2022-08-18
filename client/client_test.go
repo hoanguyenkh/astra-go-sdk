@@ -379,9 +379,10 @@ func (suite *AstraSdkTestSuite) TestImportByPrivatekey() {
 
 func (suite *AstraSdkTestSuite) TestScanner() {
 	client := suite.Client.NewScanner()
-	listTx, err := client.ScanByBlockHeight(1032719) //cosmos
+	//listTx, err := client.ScanByBlockHeight(1032719) //cosmos
 	//listTx, err := client.ScanByBlockHeight(450666) //eth
 	//listTx, err := client.ScanByBlockHeight(596365) //error
+	listTx, err := client.ScanByBlockHeight(1036356) //error
 
 	if err != nil {
 		panic(err)

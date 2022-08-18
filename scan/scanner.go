@@ -139,7 +139,7 @@ func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx, txData []b
 
 	txResponse, err := evmtypes.DecodeTxResponse(txData)
 	if txResponse.Hash != msgEth.Hash {
-		return errors.New("Tx hash not mapping")
+		return errors.New(fmt.Sprintf("Tx hash not mapping %v != %v", txResponse.Hash, msgEth.Hash))
 	}
 
 	var txDataType string
