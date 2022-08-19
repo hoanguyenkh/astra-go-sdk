@@ -193,3 +193,148 @@ func (b *Bank) TransferMultiSignRawData(param *TransferMultiSignRequest) (client
 
 	return txBuilder, nil
 }
+
+func (b *Bank) ParserEthMsg(txs *Txs, msgEth *emvTypes.MsgEthereumTx) error {
+	data, err := emvTypes.UnpackTxData(msgEth.Data)
+	if err != nil {
+		return errors.Wrap(err, "UnpackTxData")
+	}
+
+	var txDataType string
+	switch data.(type) {
+	case *emvTypes.AccessListTx:
+		txDataType = "access_list_tx"
+	case *emvTypes.LegacyTx:
+		txDataType = "legacy_tx"
+	case *emvTypes.DynamicFeeTx:
+		txDataType = "dynamic_fee_tx"
+	default:
+		return errors.Wrap(err, "UnpackTxData")
+	}
+
+	txType := msgEth.Type()
+
+	sig := msgEth.GetSigners()
+	from := sig[0].String()
+
+	amountStr := "0"
+	if data.GetValue() != nil {
+		amountStr = data.GetValue().String()
+	}
+
+	txs.Type = txType
+	txs.TxDataType = txDataType
+	txs.EthTxHash = msgEth.Hash
+
+	ethSender, err := common.CosmosAddressToEthAddress(from)
+	if err != nil {
+		return errors.Wrap(err, "CosmosAddressToEthAddress")
+	}
+
+	txs.Sender = from
+	txs.EthSender = ethSender
+
+	to := ""
+	receiver := ""
+	if data.GetTo() != nil {
+		to = data.GetTo().String()
+
+		receiver, err = common.EthAddressToCosmosAddress(to)
+		if err != nil {
+			return errors.Wrap(err, "EthAddressToCosmosAddress")
+		}
+	}
+
+	txs.Receiver = receiver
+	txs.EthReceiver = to
+
+	amount, ok := big.NewInt(0).SetString(amountStr, 10)
+	if !ok {
+		return errors.New("Parser amount invalid")
+	}
+
+	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
+
+	txs.Amount = amountStr
+	txs.TokenSymbol = ""
+
+	return nil
+}
+
+func (b *Bank) ParserCosmosMsg(txs *Txs, msgSend *bankTypes.MsgSend) error {
+	txs.TxDataType = "cosmos"
+	txs.Type = msgSend.Type()
+	ethSender, err := common.CosmosAddressToEthAddress(msgSend.FromAddress)
+	if err != nil {
+		return errors.Wrap(err, "CosmosAddressToEthAddress")
+	}
+
+	txs.Sender = msgSend.FromAddress
+	txs.EthSender = ethSender
+
+	receiver, err := common.CosmosAddressToEthAddress(msgSend.ToAddress)
+	if err != nil {
+		return errors.Wrap(err, "CosmosAddressToEthAddress")
+	}
+
+	txs.Receiver = msgSend.ToAddress
+	txs.EthReceiver = receiver
+
+	txs.Amount = msgSend.Amount[0].Amount.String()
+
+	amount, ok := big.NewInt(0).SetString(msgSend.Amount[0].Amount.String(), 10)
+	if !ok {
+		return errors.New("Parser amount invalid")
+	}
+
+	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
+
+	txs.TokenSymbol = msgSend.Amount[0].Denom
+
+	return nil
+}
+
+func (b *Bank) TxDetail(txHash string) (*Txs, error) {
+	rs, err := b.CheckTx(txHash)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := b.rpcClient.TxConfig.TxDecoder()(rs.Tx.GetValue())
+	if err != nil {
+		return nil, err
+	}
+
+	txBytes, err := b.rpcClient.TxConfig.TxJSONEncoder()(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := tx.GetMsgs()[0]
+	txs := &Txs{
+		Code:        rs.Code,
+		IsOk:        common.BlockedStatus(rs.Code),
+		Time:        rs.Timestamp,
+		BlockHeight: rs.Height,
+		TxHash:      rs.TxHash,
+		RawData:     string(txBytes),
+	}
+
+	msgEth, ok := msg.(*emvTypes.MsgEthereumTx)
+	if ok {
+		err := b.ParserEthMsg(txs, msgEth)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	msgBankSend, ok := msg.(*bankTypes.MsgSend)
+	if ok {
+		err := b.ParserCosmosMsg(txs, msgBankSend)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return txs, nil
+}

@@ -94,6 +94,6 @@ func (c *Client) NewBankClient() *bank.Bank {
 	return bank.NewBank(c.rpcClient, c.tokenSymbol, c.coinType)
 }
 
-func (c *Client) NewScanner() *scan.Scanner {
-	return scan.NewScanner(c.rpcClient)
+func (c *Client) NewScanner(bank *bank.Bank) *scan.Scanner {
+	return scan.NewScanner(c.rpcClient, bank)
 }

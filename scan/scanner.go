@@ -3,23 +3,23 @@ package scan
 import (
 	"context"
 	"fmt"
-	"github.com/AstraProtocol/astra-go-sdk/common"
+	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/cosmos/cosmos-sdk/client"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/types"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"math/big"
 	"time"
 )
 
 type Scanner struct {
 	rpcClient client.Context
+	bank      *bank.Bank
 }
 
-func NewScanner(rpcClient client.Context) *Scanner {
-	return &Scanner{rpcClient: rpcClient}
+func NewScanner(rpcClient client.Context, bank *bank.Bank) *Scanner {
+	return &Scanner{rpcClient: rpcClient, bank: bank}
 }
 
 func (b *Scanner) ScanViaWebsocket() {
@@ -72,10 +72,10 @@ func (b *Scanner) ScanViaWebsocket() {
 	select {}
 }
 
-func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
+func (b *Scanner) ScanByBlockHeight(height int64) ([]*bank.Txs, error) {
 	startTime := time.Now()
 
-	lisTx := make([]*Txs, 0)
+	lisTx := make([]*bank.Txs, 0)
 
 	blockInfo, _, err := b.getBlock(&height)
 	if err != nil {
@@ -105,7 +105,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 		}*/
 
 		ts := blockTime.Format(layout)
-		txs := &Txs{
+		txs := &bank.Txs{
 			//Code:        txResult.Code,
 			//IsOk:        txResult.IsOK(),
 			Time:        ts,
@@ -118,7 +118,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 
 		msgEth, ok := msg.(*evmtypes.MsgEthereumTx)
 		if ok {
-			err := b.getEthMsg(txs, msgEth)
+			err := b.bank.ParserEthMsg(txs, msgEth)
 			if err != nil {
 				return nil, errors.Wrap(err, "getEthMsg")
 			}
@@ -126,7 +126,7 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 
 		msgBankSend, ok := msg.(*banktypes.MsgSend)
 		if ok {
-			err := b.getBankSendMsg(txs, msgBankSend)
+			err := b.bank.ParserCosmosMsg(txs, msgBankSend)
 			if err != nil {
 				return nil, errors.Wrap(err, "getBankSendMsg")
 			}
@@ -137,108 +137,6 @@ func (b *Scanner) ScanByBlockHeight(height int64) ([]*Txs, error) {
 
 	fmt.Printf("end scan block = %v in = %v\n", height, time.Since(startTime).String())
 	return lisTx, nil
-}
-
-func (b *Scanner) getEthMsg(txs *Txs, msgEth *evmtypes.MsgEthereumTx) error {
-	data, err := evmtypes.UnpackTxData(msgEth.Data)
-	if err != nil {
-		return errors.Wrap(err, "UnpackTxData")
-	}
-
-	var txDataType string
-	switch data.(type) {
-	case *evmtypes.AccessListTx:
-		txDataType = "access_list_tx"
-	case *evmtypes.LegacyTx:
-		txDataType = "legacy_tx"
-	case *evmtypes.DynamicFeeTx:
-		txDataType = "dynamic_fee_tx"
-	default:
-		return errors.Wrap(err, "UnpackTxData")
-	}
-
-	txType := msgEth.Type()
-
-	sig := msgEth.GetSigners()
-	from := sig[0].String()
-
-	amountStr := "0"
-	if data.GetValue() != nil {
-		amountStr = data.GetValue().String()
-	}
-
-	txs.Type = txType
-	txs.TxDataType = txDataType
-	txs.EthTxHash = msgEth.Hash
-
-	ethSender, err := common.CosmosAddressToEthAddress(from)
-	if err != nil {
-		return errors.Wrap(err, "CosmosAddressToEthAddress")
-	}
-
-	txs.Sender = from
-	txs.EthSender = ethSender
-
-	to := ""
-	receiver := ""
-	if data.GetTo() != nil {
-		to = data.GetTo().String()
-
-		receiver, err = common.EthAddressToCosmosAddress(to)
-		if err != nil {
-			return errors.Wrap(err, "EthAddressToCosmosAddress")
-		}
-	}
-
-	txs.Receiver = receiver
-	txs.EthReceiver = to
-
-	amount, ok := big.NewInt(0).SetString(amountStr, 10)
-	if !ok {
-		return errors.New("Parser amount invalid")
-	}
-
-	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
-
-	txs.Amount = amountStr
-	txs.TokenSymbol = ""
-
-	return nil
-}
-
-func (b *Scanner) getBankSendMsg(txs *Txs, msgSend *banktypes.MsgSend) error {
-	//txs.EthTxHash = msgEth.Hash
-
-	txs.TxDataType = "cosmos"
-	txs.Type = msgSend.Type()
-	ethSender, err := common.CosmosAddressToEthAddress(msgSend.FromAddress)
-	if err != nil {
-		return errors.Wrap(err, "CosmosAddressToEthAddress")
-	}
-
-	txs.Sender = msgSend.FromAddress
-	txs.EthSender = ethSender
-
-	receiver, err := common.CosmosAddressToEthAddress(msgSend.ToAddress)
-	if err != nil {
-		return errors.Wrap(err, "CosmosAddressToEthAddress")
-	}
-
-	txs.Receiver = msgSend.ToAddress
-	txs.EthReceiver = receiver
-
-	txs.Amount = msgSend.Amount[0].Amount.String()
-
-	amount, ok := big.NewInt(0).SetString(msgSend.Amount[0].Amount.String(), 10)
-	if !ok {
-		return errors.New("Parser amount invalid")
-	}
-
-	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
-
-	txs.TokenSymbol = msgSend.Amount[0].Denom
-
-	return nil
 }
 
 func (b *Scanner) getBlockResults(height *int64) (*ctypes.ResultBlockResults, error) {
@@ -275,7 +173,6 @@ func (b *Scanner) getBlock(height *int64) (*ctypes.ResultBlock, *ctypes.ResultBl
 	return res, nil, nil
 }
 
-// get the current blockchain height
 func (b *Scanner) GetChainHeight() (int64, error) {
 	node, err := b.rpcClient.GetNode()
 	if err != nil {
