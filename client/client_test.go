@@ -429,3 +429,9 @@ func (suite *AstraSdkTestSuite) TestSequenceNumberFromPk() {
 	fmt.Println(accNum)
 	fmt.Println(accSeq)
 }
+
+func (suite *AstraSdkTestSuite) TestConvertToDecimal() {
+	amount, err := common.ConvertToDecimal("740000000000", 18)
+	fmt.Println(err)
+	fmt.Println(amount)
+}

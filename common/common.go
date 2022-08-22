@@ -134,16 +134,20 @@ func VerifyHdPath(hdPath string) (bool, error) {
 	return true, nil
 }
 
-func ConvertToDecimal(amount uint64, decimal int) (float64, error) {
-	if amount <= 0 {
-		return 0, nil
-	}
-
+func ConvertToDecimal(amount string, decimal int) (float64, error) {
 	if decimal <= 0 {
 		decimal = 18
 	}
 
-	valFloat := new(big.Float).SetUint64(amount)
+	valFloat, ok := new(big.Float).SetString(amount)
+	if !ok {
+		return 0, errors.New("can not parser")
+	}
+
+	if valFloat.Cmp(big.NewFloat(0)) <= 0 {
+		return 0, nil
+	}
+
 	coin := big.NewFloat(math.Pow10(int(decimal)))
 	result := new(big.Float).Quo(valFloat, coin)
 
