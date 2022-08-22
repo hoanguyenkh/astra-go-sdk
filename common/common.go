@@ -12,6 +12,9 @@ import (
 	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/crypto/tmhash"
+	"math"
+	"math/big"
+	"strconv"
 )
 
 func DecodePublicKey(rpcClient client.Context, pkJSON string) (cryptoTypes.PubKey, error) {
@@ -129,4 +132,25 @@ func VerifyHdPath(hdPath string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ConvertToDecimal(amount int64, decimal int) (float64, error) {
+	if amount <= 0 {
+		return 0, nil
+	}
+
+	if decimal <= 0 {
+		decimal = 18
+	}
+
+	valFloat := new(big.Float).SetInt64(amount)
+	coin := big.NewFloat(math.Pow10(int(decimal)))
+	result := new(big.Float).Quo(valFloat, coin)
+
+	convert, err := strconv.ParseFloat(result.String(), 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return convert, nil
 }
