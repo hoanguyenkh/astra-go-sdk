@@ -50,7 +50,7 @@ func TestAstraSdkTestSuite(t *testing.T) {
 
 func (suite *AstraSdkTestSuite) TestInitBank() {
 	bankClient := suite.Client.NewBankClient()
-	balance, err := bankClient.Balance("astra1gvwtjcv36nfqe8w3qyem6h600n750jqg6a576j")
+	balance, err := bankClient.Balance("astra1hlue55l54erxk3asqzvkfsm5yl0du50twljtlp")
 	if err != nil {
 		panic(err)
 	}

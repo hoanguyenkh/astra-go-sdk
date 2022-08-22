@@ -134,7 +134,7 @@ func VerifyHdPath(hdPath string) (bool, error) {
 	return true, nil
 }
 
-func ConvertToDecimal(amount int64, decimal int) (float64, error) {
+func ConvertToDecimal(amount uint64, decimal int) (float64, error) {
 	if amount <= 0 {
 		return 0, nil
 	}
@@ -143,7 +143,7 @@ func ConvertToDecimal(amount int64, decimal int) (float64, error) {
 		decimal = 18
 	}
 
-	valFloat := new(big.Float).SetInt64(amount)
+	valFloat := new(big.Float).SetUint64(amount)
 	coin := big.NewFloat(math.Pow10(int(decimal)))
 	result := new(big.Float).Quo(valFloat, coin)
 
