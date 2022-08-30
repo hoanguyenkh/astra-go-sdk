@@ -130,6 +130,49 @@ func (suite *AstraSdkTestSuite) TestTransfer() {
 	fmt.Println(res)
 }
 
+func (suite *AstraSdkTestSuite) TestTransferWithPrivateKey() {
+	bankClient := suite.Client.NewBankClient()
+	amount := big.NewInt(0).Mul(big.NewInt(20), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
+	fmt.Println("amount", amount.String())
+
+	request := &bank.TransferRequest{
+		PrivateKey: "69e2ece17baa00b1112217f530661a8b9d0ecabc8fe122fc1f403761c86a1ccc",
+		Receiver:   "astra1p6sscujfpygmrrxqlwqeqqw6r5lxk2x9gz9glh",
+		Amount:     amount,
+		GasLimit:   200000,
+		GasPrice:   "0.001aastra",
+	}
+
+	txBuilder, err := bankClient.TransferRawDataWithPrivateKey(request)
+	if err != nil {
+		panic(err)
+	}
+
+	txJson, err := common.TxBuilderJsonEncoder(suite.Client.rpcClient.TxConfig, txBuilder)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("rawData", string(txJson))
+
+	txByte, err := common.TxBuilderJsonDecoder(suite.Client.rpcClient.TxConfig, txJson)
+	if err != nil {
+		panic(err)
+	}
+
+	txHash := common.TxHash(txByte)
+	fmt.Println("txHash", txHash)
+
+	fmt.Println(ethCommon.BytesToHash(txByte).String())
+
+	res, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(res)
+}
+
 func (suite *AstraSdkTestSuite) TestTransferMultiSign() {
 	//main address
 	/*

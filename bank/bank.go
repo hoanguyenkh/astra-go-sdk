@@ -123,6 +123,40 @@ func (b *Bank) TransferRawData(param *TransferRequest) (client.TxBuilder, error)
 	return txBuilder, nil
 }
 
+func (b *Bank) TransferRawDataWithPrivateKey(param *TransferRequest) (client.TxBuilder, error) {
+	auth := account.NewAccount(b.coinType)
+	acc, err := auth.ImportPrivateKey(param.PrivateKey)
+	if err != nil {
+		return nil, errors.Wrap(err, "ImportAccount")
+	}
+
+	receiver, err := types.AccAddressFromBech32(param.Receiver)
+	if err != nil {
+		return nil, errors.Wrap(err, "AccAddressFromBech32")
+	}
+
+	coin := types.NewCoin(b.tokenSymbol, types.NewIntFromBigInt(param.Amount))
+	msg := bankTypes.NewMsgSend(
+		acc.AccAddress(),
+		receiver,
+		types.NewCoins(coin),
+	)
+
+	newTx := common.NewTx(b.rpcClient, acc, param.GasLimit, param.GasPrice)
+
+	txBuilder, err := newTx.BuildUnsignedTx(msg)
+	if err != nil {
+		return nil, errors.Wrap(err, "BuildUnsignedTx")
+	}
+
+	err = newTx.SignTx(txBuilder)
+	if err != nil {
+		return nil, errors.Wrap(err, "SignTx")
+	}
+
+	return txBuilder, nil
+}
+
 func (b *Bank) SignTxWithSignerAddress(param *SignTxWithSignerAddressRequest) (client.TxBuilder, error) {
 	auth := account.NewAccount(b.coinType)
 	acc, err := auth.ImportAccount(param.SignerPrivateKey)

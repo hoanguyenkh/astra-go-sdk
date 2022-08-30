@@ -46,6 +46,10 @@ func (p *PrivateKeySerialized) PrivateKey() cryptoTypes.PrivKey {
 	return p.privateKey
 }
 
+func (p *PrivateKeySerialized) PrivateKeyToString() string {
+	return hex.EncodeToString(p.privateKey.Bytes())
+}
+
 func (p *PrivateKeySerialized) Mnemonic() string {
 	return p.mnemonic
 }
