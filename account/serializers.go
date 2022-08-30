@@ -8,8 +8,8 @@ import (
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	ethermintTypes "github.com/evmos/ethermint/types"
 	"github.com/pkg/errors"
-	ethermintTypes "github.com/tharsis/ethermint/types"
 )
 
 type PrivateKeySerialized struct {

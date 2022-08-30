@@ -15,8 +15,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authSigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	emvTypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/pkg/errors"
-	emvTypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
 type TxMulSign struct {

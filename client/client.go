@@ -6,23 +6,23 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/AstraProtocol/astra-go-sdk/scan"
-	"github.com/cosmos/cosmos-sdk/client"
+	sdkClient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/tharsis/ethermint/app"
-	"github.com/tharsis/ethermint/encoding"
-	ethermintTypes "github.com/tharsis/ethermint/types"
+	"github.com/evmos/ethermint/encoding"
+	ethermintTypes "github.com/evmos/ethermint/types"
+	"github.com/evmos/evmos/v8/app"
 )
 
 type Client struct {
 	coinType      uint32
 	prefixAddress string
 	tokenSymbol   string
-	rpcClient     client.Context
+	rpcClient     sdkClient.Context
 }
 
-func (c *Client) RpcClient() client.Context {
+func (c *Client) RpcClient() sdkClient.Context {
 	return c.rpcClient
 }
 
@@ -63,24 +63,23 @@ func (c *Client) Init(cfg *config.Config) {
 	ar := authTypes.AccountRetriever{}
 
 	//github.com/cosmos/cosmos-sdk/simapp/app.go
-	//github.com/tharsis/ethermint@v0.14.0/app/app.go -> selected
+	//github.com/evmos/ethermint@v0.19.0/app/app.go -> selected
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-
-	rpcHttp, err := client.NewClientFromNode(cfg.Endpoint)
+	rpcHttp, err := sdkClient.NewClientFromNode(cfg.Endpoint)
 	if err != nil {
 		panic(err)
 	}
 
-	rpcClient := client.Context{}
+	rpcClient := sdkClient.Context{}
 	rpcClient = rpcClient.
 		WithClient(rpcHttp).
 		//WithNodeURI(c.endpoint).
+		WithCodec(encodingConfig.Marshaler).
+		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
+		WithLegacyAmino(encodingConfig.Amino).
 		WithAccountRetriever(ar).
 		WithChainID(cfg.ChainId).
-		WithInterfaceRegistry(encodingConfig.InterfaceRegistry). //codec.NewProtoCodec
-		WithCodec(encodingConfig.Marshaler).
-		WithLegacyAmino(encodingConfig.Amino).
 		WithBroadcastMode(flags.BroadcastBlock)
 
 	c.rpcClient = rpcClient

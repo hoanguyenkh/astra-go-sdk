@@ -6,10 +6,10 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/cosmos/cosmos-sdk/client"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/pkg/errors"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	"time"
 )
 

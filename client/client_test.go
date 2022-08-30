@@ -426,7 +426,7 @@ func (suite *AstraSdkTestSuite) TestScanner() {
 	//listTx, err := client.ScanByBlockHeight(1032719) //cosmos
 	//listTx, err := client.ScanByBlockHeight(450666) //eth
 	//listTx, err := client.ScanByBlockHeight(596365) //error
-	listTx, err := c.ScanByBlockHeight(1038312)
+	listTx, err := c.ScanByBlockHeight(1507159)
 	//c.ScanViaWebsocket()
 
 	if err != nil {

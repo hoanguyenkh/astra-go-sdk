@@ -10,11 +10,11 @@ import (
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	ethermintHd "github.com/evmos/ethermint/crypto/hd"
+	ethermintTypes "github.com/evmos/ethermint/types"
 	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	ethermintHd "github.com/tharsis/ethermint/crypto/hd"
-	ethermintTypes "github.com/tharsis/ethermint/types"
 )
 
 type Account struct {
