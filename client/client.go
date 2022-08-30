@@ -12,7 +12,7 @@ import (
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/ethermint/encoding"
 	ethermintTypes "github.com/evmos/ethermint/types"
-	"github.com/evmos/evmos/v8/app"
+	"github.com/evmos/evmos/v6/app"
 )
 
 type Client struct {

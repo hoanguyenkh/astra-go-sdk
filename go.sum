@@ -373,8 +373,8 @@ github.com/ethereum/go-ethereum v1.10.19/go.mod h1:IJBNMtzKcNHPtllYihy6BL2IgK1u+
 github.com/ettle/strcase v0.1.1/go.mod h1:hzDLsPC7/lwKyBOywSHEP89nt2pDgdy+No1NBA9o9VY=
 github.com/evmos/ethermint v0.19.0 h1:up9ZCYc/Mm75RX/HAkoGwZ4oEt/4UXLgMgwMamh13/Y=
 github.com/evmos/ethermint v0.19.0/go.mod h1:0W+4eL9DAXxobpOO37LryGJuwlNIb6EUBO+mgzv3DyM=
-github.com/evmos/evmos/v8 v8.0.0 h1:qmWmA6E+ZobNhURuTo8b8SmcEsthb4TGJh0vbLCocIo=
-github.com/evmos/evmos/v8 v8.0.0/go.mod h1:prK1ExMA/7XGx7OyrAIGlFMHuC1incb/kq94Jwt1QDM=
+github.com/evmos/evmos/v6 v6.0.4 h1:k7HrAbnkruVCQ+09EbsGZsgoxIVJTvH0bbvSXzV+icw=
+github.com/evmos/evmos/v6 v6.0.4/go.mod h1:5EAWzRuCc04LRKkAQTHPvZuoBk/phvUsHMCWqeygqiI=
 github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51/go.mod h1:Yg+htXGokKKdzcwhuNDwVvN+uBxDGXJ7G/VN1d8fa64=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
@@ -949,7 +949,7 @@ github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1y
 github.com/onsi/gomega v1.13.0/go.mod h1:lRk9szgn8TxENtWd0Tp4c3wjlRfMTMH27I+3Je41yGY=
 github.com/onsi/gomega v1.17.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAlGdZY=
 github.com/onsi/gomega v1.18.1/go.mod h1:0q+aL8jAiMXy9hbwj2mr5GziHiwhAIQpFmmtT5hitRs=
-github.com/onsi/gomega v1.20.0 h1:8W0cWlwFkflGPLltQvLRB7ZVD5HuP6ng320w2IS245Q=
+github.com/onsi/gomega v1.19.0 h1:4ieX6qQjPP/BfC3mpsAtIGGlxTWPeA3Inl/7DtXw1tw=
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.0.2/go.mod h1:BtxoFyWECRxE4U/7sNtV5W15zMzWCbyJoFRP3s7yZA0=
