@@ -19,7 +19,6 @@ func decodeBase64(s string) ([]byte, error) {
 	return data, nil
 }
 
-//ECC mode decryption
 func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
 	crypted, err := decodeBase64(cryptedStr)
 	if err != nil {
@@ -46,6 +45,8 @@ func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
 	var dst []byte
 	tmpData := make([]byte, block.BlockSize())
 
+	//This is the block size of the AES cipher in bytes. We could also have written size := cipher.BlockSize() here.
+	//The length of the input must be a multiple of 16 bytes.
 	for index := 0; index < len(crypted); index += block.BlockSize() {
 		block.Decrypt(tmpData, crypted[index:index+block.BlockSize()])
 		dst = append(dst, tmpData...)
@@ -59,7 +60,6 @@ func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
 	return string(dst[:]), nil
 }
 
-//ECC mode encryption
 func ECBEncrypt(src, key []byte) (string, error) {
 	if !validKey(key) {
 		return "", fmt.Errorf("the length of the secret key is wrong, the current incoming length is %d", len(key))
@@ -91,14 +91,12 @@ func ECBEncrypt(src, key []byte) (string, error) {
 	return encodeB64, nil
 }
 
-//Pkcs5 filling
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
-//Remove pkcs5 filling
 func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	length := len(origData)
 	unpadding := int(origData[length-1])
@@ -109,7 +107,6 @@ func PKCS5UnPadding(origData []byte) ([]byte, error) {
 	return origData[:(length - unpadding)], nil
 }
 
-//Key length verification
 func validKey(key []byte) bool {
 	k := len(key)
 	switch k {

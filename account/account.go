@@ -10,10 +10,11 @@ import (
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	ethermintHd "github.com/evmos/ethermint/crypto/hd"
+	ethermintTypes "github.com/evmos/ethermint/types"
+	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	ethermintHd "github.com/tharsis/ethermint/crypto/hd"
-	ethermintTypes "github.com/tharsis/ethermint/types"
 )
 
 type Account struct {
@@ -63,13 +64,14 @@ func (a *Account) CreateMulSignAccount(totalSign, multisigThreshold int) ([]*Pri
 	pk := multisig.NewLegacyAminoPubKey(multisigThreshold, pks)
 
 	addr := types.AccAddress(pk.Address())
+
 	apk, err := codecTypes.NewAnyWithValue(pk)
 	if err != nil {
-		return nil, "", "", errors.Wrap(err, "NewKeyOutput")
+		return nil, "", "", errors.Wrap(err, "NewAnyWithValue")
 	}
-	bz, err := codec.ProtoMarshalJSON(apk, nil)
+	pkMarshal, err := codec.ProtoMarshalJSON(apk, nil)
 
-	return listPrivate, addr.String(), string(bz), nil
+	return listPrivate, addr.String(), string(pkMarshal), nil
 }
 
 //Import an Account
@@ -84,6 +86,9 @@ func (a *Account) ImportAccount(mnemonic string) (*PrivateKeySerialized, error) 
 		if err != nil {
 			return nil, errors.Wrap(err, "Derive")
 		}
+
+		//privateKey: *ecdsa.PrivateKey
+		//curve: secp256k1.S256()
 
 		privateKey := ethermintHd.EthSecp256k1.Generate()(derivedPriv)
 		return NewPrivateKeySerialized(mnemonic, privateKey), nil
@@ -130,6 +135,36 @@ func (a *Account) ImportPrivateKey(privateKeyStr string) (*PrivateKeySerialized,
 
 		privateKey := hd.Secp256k1.Generate()(derivedPriv)
 		return NewPrivateKeySerialized(mnemonic, privateKey), nil*/
+
+	return nil, nil
+}
+
+func (a *Account) ImportHdPath(mnemonic, hdPath string) (*PrivateKeySerialized, error) {
+	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
+	if err != nil {
+		return nil, errors.Wrap(err, "NewFromMnemonic")
+	}
+
+	path, err := hdwallet.ParseDerivationPath(hdPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "ParseDerivationPath")
+	}
+
+	acc, err := wallet.Derive(path, false)
+	if err != nil {
+		return nil, errors.Wrap(err, "Derive")
+	}
+
+	privateKey, err := wallet.PrivateKey(acc)
+	if err != nil {
+		return nil, errors.Wrap(err, "PrivateKey")
+	}
+
+	priv := ethermintHd.EthSecp256k1.Generate()(privateKey.D.Bytes())
+
+	if a.coinType == 60 {
+		return NewPrivateKeySerialized("", priv), nil
+	}
 
 	return nil, nil
 }

@@ -15,14 +15,14 @@ type TransferRequest struct {
 }
 
 type SignTxWithSignerAddressRequest struct {
-	SignerPrivateKey    string
-	MulSignAccPublicKey cryptoTypes.PubKey
-	Receiver            string
-	Amount              *big.Int
-	GasLimit            uint64
-	GasPrice            string
-	AccNum              uint64
-	SequeNum            uint64
+	SignerPrivateKey string
+	SignerPublicKey  cryptoTypes.PubKey
+	Receiver         string
+	Amount           *big.Int
+	GasLimit         uint64
+	GasPrice         string
+	AccNum           uint64
+	SequeNum         uint64
 }
 
 type TransferMultiSignRequest struct {
@@ -34,4 +34,23 @@ type TransferMultiSignRequest struct {
 	Sigs                [][]signing.SignatureV2
 	AccNum              uint64
 	SequeNum            uint64
+}
+
+type Txs struct {
+	Code          uint32
+	IsOk          bool
+	Type          string
+	TxDataType    string
+	Time          string
+	BlockHeight   int64
+	TxHash        string
+	EthTxHash     string
+	Sender        string
+	EthSender     string
+	Receiver      string
+	EthReceiver   string
+	Amount        string
+	AmountDecimal string
+	TokenSymbol   string
+	RawData       string
 }

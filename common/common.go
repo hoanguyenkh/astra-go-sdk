@@ -2,24 +2,19 @@ package common
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/ethereum/go-ethereum/crypto"
+	ethCommon "github.com/ethereum/go-ethereum/common"
+	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	"golang.org/x/crypto/cryptobyte"
-	cryptobyteasn1 "golang.org/x/crypto/cryptobyte/asn1"
+	"math"
 	"math/big"
+	"strconv"
 )
 
 func DecodePublicKey(rpcClient client.Context, pkJSON string) (cryptoTypes.PubKey, error) {
@@ -55,14 +50,15 @@ func IsTxSigner(user types.AccAddress, signers []types.AccAddress) bool {
 }
 
 func TxBuilderJsonDecoder(txConfig client.TxConfig, txJSON string) ([]byte, error) {
-	txJSONDecoder, err := txConfig.TxJSONDecoder()([]byte(txJSON))
+	tx, err := txConfig.TxJSONDecoder()([]byte(txJSON))
 	if err != nil {
 		return nil, err
 	}
 
-	txBytes, err := txConfig.TxEncoder()(txJSONDecoder)
+	//convert to []byte
+	txBytes, err := txConfig.TxEncoder()(tx)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return txBytes, nil
@@ -106,15 +102,22 @@ func IsAddressValid(address string) (bool, error) {
 }
 
 func EthAddressToCosmosAddress(ethAddress string) (string, error) {
-	baseAddr, err := types.AccAddressFromHex(ethAddress)
+	ethAddr := ethCommon.HexToAddress(ethAddress)
+	baseAddr := types.AccAddress(ethAddr.Bytes())
+	return baseAddr.String(), nil
+}
+
+func CosmosAddressToEthAddress(cosmosAddress string) (string, error) {
+	baseAddr, err := types.AccAddressFromBech32(cosmosAddress)
 	if err != nil {
 		return "", err
 	}
 
-	return baseAddr.String(), nil
+	ethAddress := ethCommon.BytesToAddress(baseAddr.Bytes())
+	return ethAddress.String(), nil
 }
 
-func IsBlocked(code uint32) bool {
+func BlockedStatus(code uint32) bool {
 	if code == CodeTypeOK {
 		return true
 	}
@@ -122,84 +125,36 @@ func IsBlocked(code uint32) bool {
 	return false
 }
 
-func GenPrivateKeySign() (string, string) {
-	key, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+func VerifyHdPath(hdPath string) (bool, error) {
+	_, err := hdwallet.ParseDerivationPath(hdPath)
 	if err != nil {
-		panic(err)
+		return false, errors.Wrap(err, "ParseDerivationPath")
 	}
 
-	pubkey := elliptic.MarshalCompressed(crypto.S256(), key.X, key.Y)
-
-	privkey := make([]byte, 32)
-	blob := key.D.Bytes()
-	copy(privkey[32-len(blob):], blob)
-
-	privkeyStr := hex.EncodeToString(privkey)
-
-	pubkeyStr := base64.StdEncoding.EncodeToString(pubkey)
-
-	return privkeyStr, pubkeyStr
+	return true, nil
 }
 
-func SignatureData(privateKey string, msg string) (string, error) {
-	privKey, err := crypto.HexToECDSA(privateKey)
+func ConvertToDecimal(amount string, decimal int) (float64, error) {
+	if decimal <= 0 {
+		decimal = 18
+	}
 
-	hash := sha256.Sum256([]byte(msg))
-	sig, err := ecdsa.SignASN1(rand.Reader, privKey, hash[:])
+	valFloat, ok := new(big.Float).SetString(amount)
+	if !ok {
+		return 0, errors.New("can not parser")
+	}
+
+	if valFloat.Cmp(big.NewFloat(0)) <= 0 {
+		return 0, nil
+	}
+
+	coin := big.NewFloat(math.Pow10(int(decimal)))
+	result := new(big.Float).Quo(valFloat, coin)
+
+	convert, err := strconv.ParseFloat(result.String(), 64)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
-	//signEncode := hex.EncodeToString(sig)
-
-	signEncode := base64.StdEncoding.EncodeToString(sig)
-
-	return signEncode, nil
-}
-
-func VerifySignature(publicKey string, signature string, msg string) (bool, error) {
-	if len(publicKey) <= 0 {
-		return false, errors.New("public key is empty")
-	}
-
-	if len(signature) <= 0 {
-		return false, errors.New("signature is empty")
-	}
-
-	if len(msg) <= 0 {
-		return false, errors.New("data is empty")
-	}
-
-	publicKeyByte, err := base64.StdEncoding.DecodeString(publicKey)
-	if err != nil {
-		return false, errors.Wrap(err, "DecodeString")
-	}
-
-	pkKey, err := crypto.DecompressPubkey(publicKeyByte)
-	if err != nil {
-		return false, errors.Wrap(err, "DecompressPubkey")
-	}
-
-	signatureDecode, err := base64.StdEncoding.DecodeString(signature)
-	if err != nil {
-		return false, errors.Wrap(err, "DecodeString")
-	}
-
-	var (
-		r, s  = &big.Int{}, &big.Int{}
-		inner cryptobyte.String
-	)
-
-	input := cryptobyte.String(signatureDecode)
-	if !input.ReadASN1(&inner, cryptobyteasn1.SEQUENCE) ||
-		!input.Empty() ||
-		!inner.ReadASN1Integer(r) ||
-		!inner.ReadASN1Integer(s) ||
-		!inner.Empty() {
-		return false, errors.New("ReadASN1 error")
-	}
-
-	hash := sha256.Sum256([]byte(msg))
-	valid := ecdsa.Verify(pkKey, hash[:], r, s)
-	return valid, nil
+	return convert, nil
 }

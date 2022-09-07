@@ -8,8 +8,8 @@ import (
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+	ethermintTypes "github.com/evmos/ethermint/types"
 	"github.com/pkg/errors"
-	ethermintTypes "github.com/tharsis/ethermint/types"
 )
 
 type PrivateKeySerialized struct {
@@ -22,25 +22,18 @@ func NewPrivateKeySerialized(mnemonic string, privateKey cryptoTypes.PrivKey) *P
 }
 
 func (p *PrivateKeySerialized) String() (string, error) {
-	pub := p.privateKey.PubKey()
-
-	addr := types.AccAddress(pub.Address())
-	validatorAddr := types.ValAddress(pub.Address())
-	hexAddr := common.BytesToAddress(pub.Address().Bytes())
-
-	apk, err := codecTypes.NewAnyWithValue(pub)
+	pubKey, err := p.PublicKeyJson()
 	if err != nil {
-		return "", errors.Wrap(err, "NewKeyOutput")
+		return "", errors.Wrap(err, "PublicKeyJson")
 	}
-	bz, err := codec.ProtoMarshalJSON(apk, nil)
 
 	rs := map[string]string{
 		"privateKey":   hex.EncodeToString(p.privateKey.Bytes()),
 		"mnemonic":     p.mnemonic,
-		"publicKey":    string(bz),
-		"validatorKey": validatorAddr.String(),
-		"address":      addr.String(),
-		"hexAddress":   hexAddr.String(),
+		"publicKey":    pubKey,
+		"validatorKey": p.ValidatorAddress().String(),
+		"address":      p.AccAddress().String(),
+		"hexAddress":   p.HexAddress().String(),
 		"type":         p.privateKey.Type(),
 	}
 
@@ -51,6 +44,14 @@ func (p *PrivateKeySerialized) String() (string, error) {
 
 func (p *PrivateKeySerialized) PrivateKey() cryptoTypes.PrivKey {
 	return p.privateKey
+}
+
+func (p *PrivateKeySerialized) PrivateKeyToString() string {
+	return hex.EncodeToString(p.privateKey.Bytes())
+}
+
+func (p *PrivateKeySerialized) Mnemonic() string {
+	return p.mnemonic
 }
 
 func (p *PrivateKeySerialized) PublicKey() cryptoTypes.PubKey {

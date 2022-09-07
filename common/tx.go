@@ -11,8 +11,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authSigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	emvTypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/pkg/errors"
-	emvTypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
 type Tx struct {
@@ -37,8 +37,8 @@ func (t *Tx) BuildUnsignedTx(msgs types.Msg) (client.TxBuilder, error) {
 	return t.txf.BuildUnsignedTx(msgs)
 }
 
-func (t *Tx) PrintUnsignedTx(msgs types.Msg) (string, error) {
-	unsignedTx, err := t.BuildUnsignedTx(msgs)
+func (t *Tx) PrintUnsignedTx(msg types.Msg) (string, error) {
+	unsignedTx, err := t.BuildUnsignedTx(msg)
 	if err != nil {
 		return "", errors.Wrap(err, "BuildUnsignedTx")
 	}
@@ -98,18 +98,16 @@ func (t *Tx) SignTx(txBuilder client.TxBuilder) error {
 		return errors.Wrap(err, "prepareSignTx")
 	}
 
-	sigData := signing.SingleSignatureData{
-		SignMode:  t.txf.SignMode(),
-		Signature: nil,
-	}
-
-	sig := signing.SignatureV2{
-		PubKey:   pubKey,
-		Data:     &sigData,
+	sigV2 := signing.SignatureV2{
+		PubKey: pubKey,
+		Data: &signing.SingleSignatureData{
+			SignMode:  t.txf.SignMode(),
+			Signature: nil,
+		},
 		Sequence: t.txf.Sequence(),
 	}
 
-	if err := txBuilder.SetSignatures(sig); err != nil {
+	if err := txBuilder.SetSignatures(sigV2); err != nil {
 		return errors.Wrap(err, "SetSignatures")
 	}
 
