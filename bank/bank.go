@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	emvTypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -229,67 +230,58 @@ func (b *Bank) TransferMultiSignRawData(param *TransferMultiSignRequest) (client
 }
 
 func (b *Bank) ParserEthMsg(txs *Txs, msgEth *emvTypes.MsgEthereumTx) error {
-	data, err := emvTypes.UnpackTxData(msgEth.Data)
-	if err != nil {
-		return errors.Wrap(err, "UnpackTxData")
-	}
+	ethTx := msgEth.AsTransaction()
 
 	var txDataType string
-	switch data.(type) {
-	case *emvTypes.AccessListTx:
-		txDataType = "access_list_tx"
-	case *emvTypes.LegacyTx:
-		txDataType = "legacy_tx"
-	case *emvTypes.DynamicFeeTx:
-		txDataType = "dynamic_fee_tx"
+	switch ethTx.Type() {
+	case ethTypes.LegacyTxType:
+		txDataType = "legacy_tx_type"
+	case ethTypes.AccessListTxType:
+		txDataType = "access_list_tx_type"
+	case ethTypes.DynamicFeeTxType:
+		txDataType = "dynamic_fee_tx_type"
 	default:
-		return errors.Wrap(err, "UnpackTxData")
+		return errors.New("type invalid")
 	}
 
-	txType := msgEth.Type()
-
-	sig := msgEth.GetSigners()
-	from := sig[0].String()
-
-	amountStr := "0"
-	if data.GetValue() != nil {
-		amountStr = data.GetValue().String()
-	}
-
-	txs.Type = txType
+	txs.Type = msgEth.Type()
 	txs.TxDataType = txDataType
-	txs.EthTxHash = msgEth.Hash
+	txs.EthTxHash = ethTx.Hash().String()
 
-	ethSender, err := common.CosmosAddressToEthAddress(from)
+	from, err := msgEth.GetSender(ethTx.ChainId())
+	if err != nil {
+		return errors.Wrap(err, "GetSender")
+	}
+
+	sender, err := common.EthAddressToCosmosAddress(from.String())
 	if err != nil {
 		return errors.Wrap(err, "CosmosAddressToEthAddress")
 	}
 
-	txs.Sender = from
-	txs.EthSender = ethSender
-
-	to := ""
-	receiver := ""
-	if data.GetTo() != nil {
-		to = data.GetTo().String()
-
-		receiver, err = common.EthAddressToCosmosAddress(to)
-		if err != nil {
-			return errors.Wrap(err, "EthAddressToCosmosAddress")
-		}
+	receiver, err := common.EthAddressToCosmosAddress(ethTx.To().String())
+	if err != nil {
+		return errors.Wrap(err, "EthAddressToCosmosAddress")
 	}
 
-	txs.Receiver = receiver
-	txs.EthReceiver = to
+	txs.Sender = sender
+	txs.EthSender = from.String()
 
-	amount, ok := big.NewInt(0).SetString(amountStr, 10)
+	txs.Receiver = receiver
+	txs.EthReceiver = ethTx.To().String()
+
+	dataExternal := ethTx.Data()
+	if dataExternal != nil {
+		txs.IsUnNativeCoin = true
+	}
+
+	amount, ok := big.NewFloat(0).SetString(ethTx.Value().String())
 	if !ok {
 		return errors.New("Parser amount invalid")
 	}
 
-	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
+	txs.AmountDecimal = big.NewFloat(0).Quo(amount, big.NewFloat(1e18)).String()
+	txs.Amount = ethTx.Value().String()
 
-	txs.Amount = amountStr
 	txs.TokenSymbol = ""
 
 	return nil
