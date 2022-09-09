@@ -274,12 +274,12 @@ func (b *Bank) ParserEthMsg(txs *Txs, msgEth *emvTypes.MsgEthereumTx) error {
 		txs.IsUnNativeCoin = true
 	}
 
-	amount, ok := big.NewFloat(0).SetString(ethTx.Value().String())
-	if !ok {
-		return errors.New("Parser amount invalid")
+	amount, err := common.ConvertToDecimal(ethTx.Value().String(), 18)
+	if err != nil {
+		return errors.Wrap(err, "CosmosAddressToEthAddress")
 	}
 
-	txs.AmountDecimal = big.NewFloat(0).Quo(amount, big.NewFloat(1e18)).String()
+	txs.AmountDecimal = fmt.Sprintf("%v", amount)
 	txs.Amount = ethTx.Value().String()
 
 	txs.TokenSymbol = ""
@@ -308,13 +308,12 @@ func (b *Bank) ParserCosmosMsg(txs *Txs, msgSend *bankTypes.MsgSend) error {
 
 	txs.Amount = msgSend.Amount[0].Amount.String()
 
-	amount, ok := big.NewInt(0).SetString(msgSend.Amount[0].Amount.String(), 10)
-	if !ok {
-		return errors.New("Parser amount invalid")
+	amount, err := common.ConvertToDecimal(msgSend.Amount[0].Amount.String(), 18)
+	if err != nil {
+		return errors.Wrap(err, "CosmosAddressToEthAddress")
 	}
 
-	txs.AmountDecimal = big.NewInt(0).Div(amount, big.NewInt(1e18)).String()
-
+	txs.AmountDecimal = fmt.Sprintf("%v", amount)
 	txs.TokenSymbol = msgSend.Amount[0].Denom
 
 	return nil

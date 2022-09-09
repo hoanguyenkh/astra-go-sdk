@@ -423,10 +423,10 @@ func (suite *AstraSdkTestSuite) TestImportByPrivatekey() {
 func (suite *AstraSdkTestSuite) TestScanner() {
 	bankClient := suite.Client.NewBankClient()
 	c := suite.Client.NewScanner(bankClient)
-	//listTx, err := client.ScanByBlockHeight(1032719) //cosmos
-	//listTx, err := client.ScanByBlockHeight(450666) //eth
-	//listTx, err := client.ScanByBlockHeight(596365) //error
-	listTx, err := c.ScanByBlockHeight(1841145)
+	listTx, err := c.ScanByBlockHeight(1032719) //cosmos
+	//listTx, err := c.ScanByBlockHeight(450666) //eth
+	//listTx, err := c.ScanByBlockHeight(596365) //error
+	//listTx, err := c.ScanByBlockHeight(1841145)
 	//listTx, err := c.ScanByBlockHeight(1871260) //erc20
 	//c.ScanViaWebsocket()
 
