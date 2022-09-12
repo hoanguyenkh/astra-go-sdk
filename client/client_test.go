@@ -348,8 +348,8 @@ func (suite *AstraSdkTestSuite) TestAddressValid() {
 }
 
 func (suite *AstraSdkTestSuite) TestConvertHexToCosmosAddress() {
-	eth := "0xAfaF3500571b703c3bc55190a257C4881e9823c3"
-	cosmos := "astra147hn2qzhrdcrcw792xg2y47y3q0fsg7rg8wfh9"
+	eth := "0x9cc92bd19df168539ba7c73b450db998b0e79761"
+	cosmos := "astra1nnyjh5va79598xa8cua52rdenzcw09mpwfekts"
 
 	rs, _ := common.EthAddressToCosmosAddress(eth)
 	fmt.Println(rs)
@@ -423,10 +423,11 @@ func (suite *AstraSdkTestSuite) TestImportByPrivatekey() {
 func (suite *AstraSdkTestSuite) TestScanner() {
 	bankClient := suite.Client.NewBankClient()
 	c := suite.Client.NewScanner(bankClient)
-	//listTx, err := client.ScanByBlockHeight(1032719) //cosmos
-	//listTx, err := client.ScanByBlockHeight(450666) //eth
-	//listTx, err := client.ScanByBlockHeight(596365) //error
-	listTx, err := c.ScanByBlockHeight(1507159)
+	listTx, err := c.ScanByBlockHeight(1032719) //cosmos
+	//listTx, err := c.ScanByBlockHeight(450666) //eth
+	//listTx, err := c.ScanByBlockHeight(596365) //error
+	//listTx, err := c.ScanByBlockHeight(1841145)
+	//listTx, err := c.ScanByBlockHeight(1871260) //erc20
 	//c.ScanViaWebsocket()
 
 	if err != nil {
