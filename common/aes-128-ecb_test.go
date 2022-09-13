@@ -8,7 +8,7 @@ import (
 
 func TestECBEncrypt(t *testing.T) {
 	key, _ := GenerateSecretKeyRandomString(32)
-	keyByte, _ := decodeBase64(key)
+	keyByte, _ := DecodeBase64(key)
 
 	data := "mammal initial effort joke public daring fish puppy risk famous cream occur else busy cable cruel vacant brick used patient choose object teach special"
 	result, err := ECBEncrypt([]byte(data), keyByte)

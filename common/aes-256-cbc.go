@@ -22,13 +22,13 @@ func CBCEncrypt(plaintext string, key []byte, iv []byte, blockSize int) (string,
 	ciphertext := make([]byte, len(bPlaintext))
 	mode := cipher.NewCBCEncrypter(block, bIV)
 	mode.CryptBlocks(ciphertext, bPlaintext)
-	return encodeBase64(ciphertext), nil
+	return EncodeBase64(ciphertext), nil
 }
 
 func CBCDecrypt(cipherText string, encKey []byte, iv []byte) (string, error) {
 	bKey := encKey
 	bIV := iv
-	cipherTextDecoded, err := decodeBase64(cipherText)
+	cipherTextDecoded, err := DecodeBase64(cipherText)
 	if err != nil {
 		return "", err
 	}

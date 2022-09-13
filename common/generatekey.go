@@ -23,7 +23,7 @@ func GenerateSecretKeyRandomString(n int) (string, error) {
 		return "", err
 	}
 
-	return encodeBase64(key), nil
+	return EncodeBase64(key), nil
 }
 
 func GenerateRandomString(length int) string {

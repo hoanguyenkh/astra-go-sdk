@@ -13,8 +13,8 @@ func TestAce256(t *testing.T) {
 
 	fmt.Println(key, iv)
 
-	keyByte, _ := decodeBase64(key)
-	ivByte, _ := decodeBase64(iv)
+	keyByte, _ := DecodeBase64(key)
+	ivByte, _ := DecodeBase64(iv)
 
 	fmt.Println(len(keyByte), len(ivByte))
 
