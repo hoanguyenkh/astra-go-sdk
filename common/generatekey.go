@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func GenerateRandomBytes(n int) ([]byte, error) {
+func generateRandomBytes(n int) ([]byte, error) {
 	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, n)
 	_, err := rand.Read(b)
@@ -18,7 +18,7 @@ func GenerateRandomBytes(n int) ([]byte, error) {
 }
 
 func GenerateSecretKeyRandomString(n int) (string, error) {
-	key, err := GenerateRandomBytes(n)
+	key, err := generateRandomBytes(n)
 	if err != nil {
 		return "", err
 	}

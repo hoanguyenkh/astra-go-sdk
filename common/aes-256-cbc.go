@@ -3,11 +3,17 @@ package common
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"fmt"
 )
 
-func CBCEncrypt(plaintext string, key string, iv string, blockSize int) (string, error) {
-	bKey := []byte(key)
-	bIV := []byte(iv)
+func CBCEncrypt(plaintext string, key []byte, iv []byte, blockSize int) (string, error) {
+	bKey := key
+	bIV := iv
+
+	if !validKey(bIV) {
+		return "", fmt.Errorf("the length of the secret key is wrong, the current incoming length is %d", len(iv))
+	}
+
 	bPlaintext := PKCS5Padding([]byte(plaintext), blockSize)
 	block, err := aes.NewCipher(bKey)
 	if err != nil {
@@ -19,9 +25,9 @@ func CBCEncrypt(plaintext string, key string, iv string, blockSize int) (string,
 	return encodeBase64(ciphertext), nil
 }
 
-func CBCDecrypt(cipherText string, encKey string, iv string) (string, error) {
-	bKey := []byte(encKey)
-	bIV := []byte(iv)
+func CBCDecrypt(cipherText string, encKey []byte, iv []byte) (string, error) {
+	bKey := encKey
+	bIV := iv
 	cipherTextDecoded, err := decodeBase64(cipherText)
 	if err != nil {
 		return "", err
