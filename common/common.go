@@ -8,8 +8,8 @@ import (
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/ethereum/go-ethereum/accounts"
 	ethCommon "github.com/ethereum/go-ethereum/common"
-	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"math"
@@ -126,7 +126,7 @@ func BlockedStatus(code uint32) bool {
 }
 
 func VerifyHdPath(hdPath string) (bool, error) {
-	_, err := hdwallet.ParseDerivationPath(hdPath)
+	_, err := accounts.ParseDerivationPath(hdPath)
 	if err != nil {
 		return false, errors.Wrap(err, "ParseDerivationPath")
 	}
