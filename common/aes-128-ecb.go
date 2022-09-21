@@ -7,11 +7,11 @@ import (
 	"fmt"
 )
 
-func encodeBase64(b []byte) string {
+func EncodeBase64(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-func decodeBase64(s string) ([]byte, error) {
+func DecodeBase64(s string) ([]byte, error) {
 	data, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func decodeBase64(s string) ([]byte, error) {
 }
 
 func ECBDecrypt(cryptedStr string, key []byte) (string, error) {
-	crypted, err := decodeBase64(cryptedStr)
+	crypted, err := DecodeBase64(cryptedStr)
 	if err != nil {
 		return "", err
 	}
@@ -86,7 +86,7 @@ func ECBEncrypt(src, key []byte) (string, error) {
 		dst = append(dst, tmpData...)
 	}
 
-	encodeB64 := encodeBase64(dst)
+	encodeB64 := EncodeBase64(dst)
 
 	return encodeB64, nil
 }

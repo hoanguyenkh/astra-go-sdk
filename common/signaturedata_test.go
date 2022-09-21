@@ -52,7 +52,7 @@ func TestGenKey(t *testing.T) {
 }
 
 func TestImportPrivateKey(t *testing.T) {
-	privateKey := "1214c33e0ea1815464124ca3566aa406cc59f59d272b183ff33bd4cbea7d8dba"
+	privateKey := "d7a370eb8429ea8db32973357c7012f2e2dd9453ea155ab2c3bc5c7d21e01ad0"
 	key, err := crypto.HexToECDSA(privateKey)
 	if err != nil {
 		panic(err)

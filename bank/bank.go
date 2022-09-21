@@ -258,20 +258,21 @@ func (b *Bank) ParserEthMsg(txs *Txs, msgEth *emvTypes.MsgEthereumTx) error {
 		return errors.Wrap(err, "CosmosAddressToEthAddress")
 	}
 
-	receiver, err := common.EthAddressToCosmosAddress(ethTx.To().String())
-	if err != nil {
-		return errors.Wrap(err, "EthAddressToCosmosAddress")
-	}
-
 	txs.Sender = sender
 	txs.EthSender = from.String()
 
-	txs.Receiver = receiver
-	txs.EthReceiver = ethTx.To().String()
-
 	dataExternal := ethTx.Data()
 	if dataExternal != nil {
+		//todo: can not parser eth data
 		txs.IsUnNativeCoin = true
+	} else {
+		receiver, err := common.EthAddressToCosmosAddress(ethTx.To().String())
+		if err != nil {
+			return errors.Wrap(err, "EthAddressToCosmosAddress")
+		}
+
+		txs.Receiver = receiver
+		txs.EthReceiver = ethTx.To().String()
 	}
 
 	amount, err := common.ConvertToDecimal(ethTx.Value().String(), 18)
