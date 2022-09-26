@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	ethermintHd "github.com/evmos/ethermint/crypto/hd"
 	ethermintTypes "github.com/evmos/ethermint/types"
-	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
 	"github.com/pkg/errors"
 )
 
@@ -87,9 +86,6 @@ func (a *Account) ImportAccount(mnemonic string) (*PrivateKeySerialized, error) 
 			return nil, errors.Wrap(err, "Derive")
 		}
 
-		//privateKey: *ecdsa.PrivateKey
-		//curve: secp256k1.S256()
-
 		privateKey := ethermintHd.EthSecp256k1.Generate()(derivedPriv)
 		return NewPrivateKeySerialized(mnemonic, privateKey), nil
 	}
@@ -122,48 +118,19 @@ func (a *Account) ImportPrivateKey(privateKeyStr string) (*PrivateKeySerialized,
 		return NewPrivateKeySerialized("", privateKey), nil
 	}
 
-	/*	//cosmos
-		derivedPriv, err := hd.Secp256k1.Derive()(
-			mnemonic,
-			keyring.DefaultBIP39Passphrase,
-			types.FullFundraiserPath,
-		)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "Derive")
-		}
-
-		privateKey := hd.Secp256k1.Generate()(derivedPriv)
-		return NewPrivateKeySerialized(mnemonic, privateKey), nil*/
-
 	return nil, nil
 }
 
 func (a *Account) ImportHdPath(mnemonic, hdPath string) (*PrivateKeySerialized, error) {
-	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
-	if err != nil {
-		return nil, errors.Wrap(err, "NewFromMnemonic")
-	}
-
-	path, err := hdwallet.ParseDerivationPath(hdPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "ParseDerivationPath")
-	}
-
-	acc, err := wallet.Derive(path, false)
+	bz, err := ethermintHd.EthSecp256k1.Derive()(mnemonic, keyring.DefaultBIP39Passphrase, hdPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "Derive")
 	}
 
-	privateKey, err := wallet.PrivateKey(acc)
-	if err != nil {
-		return nil, errors.Wrap(err, "PrivateKey")
-	}
-
-	priv := ethermintHd.EthSecp256k1.Generate()(privateKey.D.Bytes())
+	privateKey := ethermintHd.EthSecp256k1.Generate()(bz)
 
 	if a.coinType == 60 {
-		return NewPrivateKeySerialized("", priv), nil
+		return NewPrivateKeySerialized("", privateKey), nil
 	}
 
 	return nil, nil

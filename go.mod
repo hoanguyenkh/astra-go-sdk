@@ -9,7 +9,6 @@ require (
 	github.com/evmos/ethermint v0.17.2
 	github.com/evmos/evmos/v6 v6.0.4
 	github.com/joho/godotenv v1.4.0
-	github.com/miguelmota/go-ethereum-hdwallet v0.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.5
 	github.com/tendermint/tendermint v0.34.20-0.20220517115723-e6f071164839
