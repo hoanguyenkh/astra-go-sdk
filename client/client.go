@@ -80,7 +80,7 @@ func (c *Client) Init(cfg *config.Config) {
 		WithLegacyAmino(encodingConfig.Amino).
 		WithAccountRetriever(ar).
 		WithChainID(cfg.ChainId).
-		WithBroadcastMode(flags.BroadcastBlock)
+		WithBroadcastMode(flags.BroadcastSync)
 
 	c.rpcClient = rpcClient
 }
