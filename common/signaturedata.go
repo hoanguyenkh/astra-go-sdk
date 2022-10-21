@@ -64,17 +64,17 @@ func VerifySignature(publicKey string, signature string, msg string) (bool, erro
 
 	publicKeyByte, err := base64.StdEncoding.DecodeString(publicKey)
 	if err != nil {
-		return false, errors.Wrap(err, "DecodeString")
+		return false, errors.Wrap(err, "DecodeString publicKey")
 	}
 
 	pkKey, err := crypto.DecompressPubkey(publicKeyByte)
 	if err != nil {
-		return false, errors.Wrap(err, "DecompressPubkey")
+		return false, errors.Wrap(err, "Decompress publicKey")
 	}
 
 	signatureDecode, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
-		return false, errors.Wrap(err, "DecodeString")
+		return false, errors.Wrap(err, "DecodeString signature")
 	}
 
 	var (
