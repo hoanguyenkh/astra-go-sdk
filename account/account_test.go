@@ -26,14 +26,14 @@ func TestCreateAccount(t *testing.T) {
 
 func TestCreateMulAccount(t *testing.T) {
 	n := NewAccount(60)
-	key, addr, pucKey, err := n.CreateMulSignAccount(3, 2)
+	key, addr, pubKey, err := n.CreateMulSignAccount(3, 2)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("key type 60")
 	fmt.Println("addr", addr)
-	fmt.Println("pucKey", pucKey)
+	fmt.Println("pucKey", pubKey)
 	fmt.Println("list key")
 	for i, serialized := range key {
 		fmt.Println("index", i)
@@ -45,14 +45,14 @@ func TestCreateMulAccountFromAccount(t *testing.T) {
 	n := NewAccount(60)
 	account1, _ := n.CreateAccount()
 	account2, _ := n.CreateAccount()
-	addr, pucKey, err := n.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
+	addr, pubKey, err := n.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("key type 60")
 	fmt.Println("addr", addr)
-	fmt.Println("pucKey", pucKey)
+	fmt.Println("pucKey", pubKey)
 }
 
 func TestImportPrivateKey(t *testing.T) {
