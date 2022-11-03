@@ -41,6 +41,20 @@ func TestCreateMulAccount(t *testing.T) {
 	}
 }
 
+func TestCreateMulAccountFromAccount(t *testing.T) {
+	n := NewAccount(60)
+	account1, _ := n.CreateAccount()
+	account2, _ := n.CreateAccount()
+	addr, pucKey, err := n.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("key type 60")
+	fmt.Println("addr", addr)
+	fmt.Println("pucKey", pucKey)
+}
+
 func TestImportPrivateKey(t *testing.T) {
 	n := NewAccount(60)
 	key, err := n.ImportPrivateKey("c6849b352fb9027e0a4592c52226de2f37747192412f50f8daeac6c5a6f5e9de")
