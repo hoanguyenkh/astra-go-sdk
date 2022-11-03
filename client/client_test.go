@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/AstraProtocol/astra-go-sdk/bank"
+	"github.com/AstraProtocol/astra-go-sdk/channel"
 	"github.com/AstraProtocol/astra-go-sdk/common"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -482,4 +483,45 @@ func (suite *AstraSdkTestSuite) TestConvertToDecimal() {
 	amount, err := common.ConvertToDecimal("740000000000", 18)
 	fmt.Println(err)
 	fmt.Println(amount)
+}
+
+func (suite *AstraSdkTestSuite) TestOpenChannel() {
+	channelClient := suite.Client.NewChannelClient()
+	acc := suite.Client.NewAccountClient()
+	account1, err := acc.ImportAccount("gadget final blue appear hero retire wild account message social health hobby decade neglect common egg cruel certain phrase myself alert enlist brother sure")
+	if err != nil {
+		panic(err)
+	}
+	account2, err := acc.ImportAccount("salute debate real reject wreck topple derive night height job range enrich juice develop crush install method always vacant napkin blush beyond hedgehog tortoise")
+	if err != nil {
+		panic(err)
+	}
+
+	multisigAddr, _, err := acc.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("multisigAddr", multisigAddr)
+
+	result, err := channelClient.OpenChannel(channel.OpenChannelRequest{
+		Creator: multisigAddr,
+		PartA:   account1.AccAddress().String(),
+		PartB:   account2.AccAddress().String(),
+		CoinA: &types.Coin{
+			Denom:  "astra",
+			Amount: types.NewInt(2),
+		},
+		CoinB: &types.Coin{
+			Denom:  "astra",
+			Amount: types.NewInt(2),
+		},
+		MultisigAddr: multisigAddr,
+		Sequence:     "5",
+		GasLimit:     200000,
+		GasPrice:     "0.001aastra",
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
 }

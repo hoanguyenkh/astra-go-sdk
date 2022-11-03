@@ -17,27 +17,27 @@ func NewChannel(rpcClient client.Context) *Channel {
 	return &Channel{rpcClient}
 }
 
-func (channel *Channel) OpenChannel(request OpenChannelRequest) error {
+func (cn *Channel) OpenChannel(request OpenChannelRequest) (string, error) {
 	msg := channelTypes.NewMsgOpenChannel(request.Creator, request.PartA, request.PartB,
 		request.CoinA, request.CoinB, request.MultisigAddr, request.Sequence)
 	err := msg.ValidateBasic()
 	if err != nil {
-		return err
+		return "", err
 	}
-	tmpPrik := account.PrivateKeySerialized{}
-	newTx := common.NewTx(channel.rpcClient,
-		account.NewPrivateKeySerialized("", tmpPrik.PrivateKey()), 0, "")
+	tmpPrivKey := account.PrivateKeySerialized{}
+	newTx := common.NewTx(cn.rpcClient,
+		account.NewPrivateKeySerialized("", tmpPrivKey.PrivateKey()), 0, "")
 	txBuilder, err := newTx.BuildUnsignedTx(msg)
 
-	json, err := channel.rpcClient.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
+	json, err := cn.rpcClient.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return channel.rpcClient.PrintString(fmt.Sprintf("%s\n", json))
+	return fmt.Sprintf("%s\n", json), nil
 }
 
-func (channel *Channel) ListChannel() (*channelTypes.QueryAllChannelResponse, error) {
-	channelClient := channelTypes.NewQueryClient(channel.rpcClient)
+func (cn *Channel) ListChannel() (*channelTypes.QueryAllChannelResponse, error) {
+	channelClient := channelTypes.NewQueryClient(cn.rpcClient)
 	return channelClient.ChannelAll(context.Background(), &channelTypes.QueryAllChannelRequest{})
 }

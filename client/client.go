@@ -7,13 +7,13 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/channel"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/AstraProtocol/astra-go-sdk/scan"
+	"github.com/AstraProtocol/astra/v2/app"
 	sdkClient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/types"
 	authTypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/ethermint/encoding"
 	ethermintTypes "github.com/evmos/ethermint/types"
-	"github.com/evmos/evmos/v6/app"
 )
 
 type Client struct {

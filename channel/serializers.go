@@ -12,4 +12,6 @@ type OpenChannelRequest struct {
 	CoinB        *sdk.Coin
 	MultisigAddr string
 	Sequence     string
+	GasLimit     uint64
+	GasPrice     string
 }
