@@ -58,6 +58,15 @@ func (suite *AstraSdkTestSuite) TestInitBank() {
 	fmt.Println(balance.String())
 }
 
+func (suite *AstraSdkTestSuite) TestInitChannel() {
+	channelClient := suite.Client.NewChannelClient()
+	channels, err := channelClient.ListChannel()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(channels)
+}
+
 func (suite *AstraSdkTestSuite) TestGenAccount() {
 	accClient := suite.Client.NewAccountClient()
 	acc, err := accClient.CreateAccount()

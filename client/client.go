@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AstraProtocol/astra-go-sdk/account"
 	"github.com/AstraProtocol/astra-go-sdk/bank"
+	"github.com/AstraProtocol/astra-go-sdk/channel"
 	"github.com/AstraProtocol/astra-go-sdk/config"
 	"github.com/AstraProtocol/astra-go-sdk/scan"
 	sdkClient "github.com/cosmos/cosmos-sdk/client"
@@ -95,4 +96,8 @@ func (c *Client) NewBankClient() *bank.Bank {
 
 func (c *Client) NewScanner(bank *bank.Bank) *scan.Scanner {
 	return scan.NewScanner(c.rpcClient, bank)
+}
+
+func (c *Client) NewChannelClient() *channel.Channel {
+	return channel.NewChannel(c.rpcClient)
 }
