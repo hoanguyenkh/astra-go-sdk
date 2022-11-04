@@ -14,6 +14,7 @@ import (
 	"github.com/AstraProtocol/astra-go-sdk/channel"
 	"github.com/AstraProtocol/astra-go-sdk/common"
 	"github.com/AstraProtocol/astra-go-sdk/config"
+	channelTypes "github.com/AstraProtocol/channel/x/channel/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	signingTypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -498,38 +499,16 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 		panic(err)
 	}
 
-	multisigAddr, _, err := acc.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
+	multisigAddr, multiSigPubkey, err := acc.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Println("multisigAddr", multisigAddr)
-
-	result, err := channelClient.OpenChannel(channel.OpenChannelRequest{
-		Creator: multisigAddr,
-		PartA:   account1.AccAddress().String(),
-		PartB:   account2.AccAddress().String(),
-		CoinA: &types.Coin{
-			Denom:  "astra",
-			Amount: types.NewInt(1),
-		},
-		CoinB: &types.Coin{
-			Denom:  "astra",
-			Amount: types.NewInt(1),
-		},
-		MultisigAddr: multisigAddr,
-		Sequence:     "5",
-		GasLimit:     200000,
-		GasPrice:     "0.001aastra",
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(result)
-
-	//amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
+	//fmt.Println("Deposit init multisignAddr")
+	//amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(15))))
 	//bankClient := suite.Client.NewBankClient()
-	//fmt.Println("User 1 deposit ------")
-	//fmt.Println("amount", amount.String())
+	//fmt.Println("deposit amount", amount.String())
 	//request1 := &bank.TransferRequest{
 	//	PrivateKey: "gadget final blue appear hero retire wild account message social health hobby decade neglect common egg cruel certain phrase myself alert enlist brother sure",
 	//	Receiver:   multisigAddr,
@@ -542,22 +521,92 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 	//if err != nil {
 	//	panic(err)
 	//}
-	//fmt.Println(txResult1)
 	//
-	//fmt.Println("User 2 deposit ------")
-	//
-	//request2 := &bank.TransferRequest{
-	//	PrivateKey: "salute debate real reject wreck topple derive night height job range enrich juice develop crush install method always vacant napkin blush beyond hedgehog tortoise",
-	//	Receiver:   multisigAddr,
-	//	Amount:     amount,
-	//	GasLimit:   200000,
-	//	GasPrice:   "0.001aastra",
-	//}
-	//
-	//txResult2, err := bankClient.TransferRawDataAndBroadcast(request2)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//fmt.Println(txResult2)
+	//fmt.Println("txResult1", txResult1)
 
+	openChannelRequest := channel.SignMsgRequest{
+		Msg: &channelTypes.MsgOpenChannel{
+			Creator: multisigAddr,
+			PartA:   account1.AccAddress().String(),
+			PartB:   account2.AccAddress().String(),
+			CoinA: &types.Coin{
+				Denom:  "astra",
+				Amount: types.NewInt(1),
+			},
+			CoinB: &types.Coin{
+				Denom:  "astra",
+				Amount: types.NewInt(1),
+			},
+			MultisigAddr: multisigAddr,
+			Sequence:     "8",
+		},
+		GasLimit: 200000,
+		GasPrice: "0.001aastra",
+	}
+
+	signList := make([][]signingTypes.SignatureV2, 0)
+	strSig1, err := channelClient.SignMultisigMsg(openChannelRequest, account1, multiSigPubkey)
+	if err != nil {
+		panic(err)
+	}
+	signByte1, err := common.TxBuilderSignatureJsonDecoder(suite.Client.rpcClient.TxConfig, strSig1)
+	if err != nil {
+		panic(err)
+	}
+
+	signList = append(signList, signByte1)
+
+	strSig2, err := channelClient.SignMultisigMsg(openChannelRequest, account2, multiSigPubkey)
+	if err != nil {
+		panic(err)
+	}
+	signByte2, err := common.TxBuilderSignatureJsonDecoder(suite.Client.rpcClient.TxConfig, strSig2)
+	if err != nil {
+		panic(err)
+	}
+
+	signList = append(signList, signByte2)
+
+	fmt.Println("new tx multisign")
+
+	newTx := common.NewTxMulSign(suite.Client.rpcClient,
+		nil,
+		openChannelRequest.GasLimit,
+		openChannelRequest.GasPrice,
+		0,
+		2)
+
+	txBuilderMultiSign, err := newTx.BuildUnsignedTx(openChannelRequest.Msg)
+	if err != nil {
+		panic(err)
+	}
+
+	err = newTx.CreateTxMulSign(txBuilderMultiSign, multiSigPubkey, suite.Client.coinType, signList)
+	if err != nil {
+		panic(err)
+	}
+
+	txJson, err := common.TxBuilderJsonEncoder(suite.Client.rpcClient.TxConfig, txBuilderMultiSign)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("rawData", string(txJson))
+
+	txByte, err := common.TxBuilderJsonDecoder(suite.Client.rpcClient.TxConfig, txJson)
+	if err != nil {
+		panic(err)
+	}
+
+	txHash := common.TxHash(txByte)
+	fmt.Println("txHash", txHash)
+
+	fmt.Println(ethCommon.BytesToHash(txByte).String())
+
+	res, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
 }
