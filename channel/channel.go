@@ -26,11 +26,6 @@ func NewChannel(rpcClient client.Context) *Channel {
 	return &Channel{rpcClient}
 }
 
-func (cn *Channel) ListChannel() (*channelTypes.QueryAllChannelResponse, error) {
-	channelClient := channelTypes.NewQueryClient(cn.rpcClient)
-	return channelClient.ChannelAll(context.Background(), &channelTypes.QueryAllChannelRequest{})
-}
-
 func (cn *Channel) SignMultisigMsg(req SignMsgRequest,
 	account *account.PrivateKeySerialized,
 	multiSigPubkey cryptoTypes.PubKey) (string, error) {
@@ -57,4 +52,9 @@ func (cn *Channel) SignMultisigMsg(req SignMsgRequest,
 	}
 
 	return sign, nil
+}
+
+func (cn *Channel) ListChannel() (*channelTypes.QueryAllChannelResponse, error) {
+	channelClient := channelTypes.NewQueryClient(cn.rpcClient)
+	return channelClient.ChannelAll(context.Background(), &channelTypes.QueryAllChannelRequest{})
 }
