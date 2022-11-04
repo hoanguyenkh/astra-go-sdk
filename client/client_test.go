@@ -3,6 +3,13 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"math"
+	"math/big"
+	"os"
+	"sync"
+	"testing"
+
 	"github.com/AstraProtocol/astra-go-sdk/bank"
 	"github.com/AstraProtocol/astra-go-sdk/channel"
 	"github.com/AstraProtocol/astra-go-sdk/common"
@@ -14,12 +21,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"log"
-	"math"
-	"math/big"
-	"os"
-	"sync"
-	"testing"
 )
 
 type AstraSdkTestSuite struct {
