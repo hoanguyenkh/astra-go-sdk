@@ -8,7 +8,7 @@ import (
 	channelTypes "github.com/AstraProtocol/channel/x/channel/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptoTypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +17,7 @@ type Channel struct {
 }
 
 type SignMsgRequest struct {
-	Msg      sdk.Msg
+	Msg      types.Msg
 	GasLimit uint64
 	GasPrice string
 }
@@ -39,6 +39,7 @@ func (cn *Channel) SignMultisigMsg(req SignMsgRequest,
 	if err != nil {
 		return "", err
 	}
+
 	newTx := common.NewTxMulSign(cn.rpcClient, account, req.GasLimit, req.GasPrice, 0, 2)
 	txBuilder, err := newTx.BuildUnsignedTx(req.Msg)
 	if err != nil {
