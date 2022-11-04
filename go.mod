@@ -149,6 +149,6 @@ require (
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
-replace github.com/AstraProtocol/channel => /Users/lap02341/resource/AstraProject/channel
+// replace github.com/AstraProtocol/channel => /Users/lap02341/resource/AstraProject/channel
 
 replace github.com/AstraProtocol/astra/v2 => github.com/hoanguyenkh/astra/v2 v2.2.0-rc
