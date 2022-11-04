@@ -499,51 +499,60 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 		panic(err)
 	}
 
+	bankClient := suite.Client.NewBankClient()
+	balance1Origin, err := bankClient.Balance(account1.AccAddress().String())
+	balance2Origin, err := bankClient.Balance(account2.AccAddress().String())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Balance 1 - origin: ", balance1Origin)
+
 	multisigAddr, multiSigPubkey, err := acc.CreateMulSignAccountFromTwoAccount(account1.PublicKey(), account2.PublicKey(), 2)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("multisigAddr", multisigAddr)
-	//fmt.Println("Deposit init multisignAddr")
-	//amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(15))))
-	//bankClient := suite.Client.NewBankClient()
-	//fmt.Println("deposit amount", amount.String())
-	//request1 := &bank.TransferRequest{
-	//	PrivateKey: "gadget final blue appear hero retire wild account message social health hobby decade neglect common egg cruel certain phrase myself alert enlist brother sure",
-	//	Receiver:   multisigAddr,
-	//	Amount:     amount,
-	//	GasLimit:   200000,
-	//	GasPrice:   "0.001aastra",
-	//}
-	//
-	//txResult1, err := bankClient.TransferRawDataAndBroadcast(request1)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//fmt.Println("txResult1", txResult1)
+	fmt.Println("Deposit init multisignAddr")
+	amount := big.NewInt(1)
 
-	openChannelRequest := channel.OpenChannelRequest{
-		Creator: multisigAddr,
-		PartA:   account1.AccAddress().String(),
-		PartB:   account2.AccAddress().String(),
-		CoinA: &types.Coin{
-			Denom:  "astra",
-			Amount: types.NewInt(1),
+	fmt.Println("deposit amount", amount.String())
+	request1 := &bank.TransferRequest{
+		PrivateKey: "gadget final blue appear hero retire wild account message social health hobby decade neglect common egg cruel certain phrase myself alert enlist brother sure",
+		Receiver:   multisigAddr,
+		Amount:     amount,
+		GasLimit:   200000,
+		GasPrice:   "0.001aastra",
+	}
+
+	txResult1, err := bankClient.TransferRawDataAndBroadcast(request1)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("tx transfer result code", txResult1.Code)
+
+	openChannelRequest := channel.SignMsgRequest{
+		Msg: &channelTypes.MsgOpenChannel{
+			Creator: multisigAddr,
+			PartA:   account1.AccAddress().String(),
+			PartB:   account2.AccAddress().String(),
+			CoinA: &types.Coin{
+				Denom:  "astra",
+				Amount: types.NewInt(1),
+			},
+			CoinB: &types.Coin{
+				Denom:  "astra",
+				Amount: types.NewInt(1),
+			},
+			MultisigAddr: multisigAddr,
+			Sequence:     "8",
 		},
-		CoinB: &types.Coin{
-			Denom:  "astra",
-			Amount: types.NewInt(1),
-		},
-		MultisigAddr: multisigAddr,
-		Sequence:     "8",
-		GasLimit:     200000,
-		GasPrice:     "0.001aastra",
+		GasLimit: 200000,
+		GasPrice: "0.001aastra",
 	}
 
 	signList := make([][]signingTypes.SignatureV2, 0)
-	strSig1, err := channelClient.SignOpenChannel(openChannelRequest, account1, multiSigPubkey)
+	strSig1, err := channelClient.SignMultisigMsg(openChannelRequest, account1, multiSigPubkey)
 	if err != nil {
 		panic(err)
 	}
@@ -554,7 +563,7 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 
 	signList = append(signList, signByte1)
 
-	strSig2, err := channelClient.SignOpenChannel(openChannelRequest, account2, multiSigPubkey)
+	strSig2, err := channelClient.SignMultisigMsg(openChannelRequest, account2, multiSigPubkey)
 	if err != nil {
 		panic(err)
 	}
@@ -574,10 +583,7 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 		0,
 		2)
 
-	msg := channelTypes.NewMsgOpenChannel(openChannelRequest.Creator, openChannelRequest.PartA,
-		openChannelRequest.PartB, openChannelRequest.CoinA, openChannelRequest.CoinB,
-		openChannelRequest.MultisigAddr, openChannelRequest.Sequence)
-	txBuilderMultiSign, err := newTx.BuildUnsignedTx(msg)
+	txBuilderMultiSign, err := newTx.BuildUnsignedTx(openChannelRequest.Msg)
 	if err != nil {
 		panic(err)
 	}
@@ -591,7 +597,6 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Println("rawData", string(txJson))
 
 	txByte, err := common.TxBuilderJsonDecoder(suite.Client.rpcClient.TxConfig, txJson)
@@ -604,10 +609,22 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 
 	fmt.Println(ethCommon.BytesToHash(txByte).String())
 
-	res, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
-
+	txResult2, err := suite.Client.rpcClient.BroadcastTxCommit(txByte)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(res)
+	fmt.Println("tx openchannel result code", txResult2.Code)
+
+	balance1After, err := bankClient.Balance(account1.AccAddress().String())
+	balance2After, err := bankClient.Balance(account2.AccAddress().String())
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("balance 1 - after", balance1After)
+	fmt.Println("balance 2 - after", balance1After)
+
+	diff := balance1Origin.Sub(balance1Origin, balance1After)
+	diff2 := balance1Origin.Sub(balance2Origin, balance2After)
+	fmt.Println("Account1 Balance decrease", diff)
+	fmt.Println("Account2 Balance decrease", diff2)
 }
