@@ -509,11 +509,11 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 		PartB:   account2.AccAddress().String(),
 		CoinA: &types.Coin{
 			Denom:  "astra",
-			Amount: types.NewInt(2),
+			Amount: types.NewInt(1),
 		},
 		CoinB: &types.Coin{
 			Denom:  "astra",
-			Amount: types.NewInt(2),
+			Amount: types.NewInt(1),
 		},
 		MultisigAddr: multisigAddr,
 		Sequence:     "5",
@@ -524,4 +524,39 @@ func (suite *AstraSdkTestSuite) TestOpenChannel() {
 		panic(err)
 	}
 	fmt.Println(result)
+
+	//amount := big.NewInt(0).Mul(big.NewInt(10), big.NewInt(0).SetUint64(uint64(math.Pow10(18))))
+	//bankClient := suite.Client.NewBankClient()
+	//fmt.Println("User 1 deposit ------")
+	//fmt.Println("amount", amount.String())
+	//request1 := &bank.TransferRequest{
+	//	PrivateKey: "gadget final blue appear hero retire wild account message social health hobby decade neglect common egg cruel certain phrase myself alert enlist brother sure",
+	//	Receiver:   multisigAddr,
+	//	Amount:     amount,
+	//	GasLimit:   200000,
+	//	GasPrice:   "0.001aastra",
+	//}
+	//
+	//txResult1, err := bankClient.TransferRawDataAndBroadcast(request1)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//fmt.Println(txResult1)
+	//
+	//fmt.Println("User 2 deposit ------")
+	//
+	//request2 := &bank.TransferRequest{
+	//	PrivateKey: "salute debate real reject wreck topple derive night height job range enrich juice develop crush install method always vacant napkin blush beyond hedgehog tortoise",
+	//	Receiver:   multisigAddr,
+	//	Amount:     amount,
+	//	GasLimit:   200000,
+	//	GasPrice:   "0.001aastra",
+	//}
+	//
+	//txResult2, err := bankClient.TransferRawDataAndBroadcast(request2)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//fmt.Println(txResult2)
+
 }
